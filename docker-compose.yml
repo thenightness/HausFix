@@ -1,7 +1,7 @@
 services:
   mariadb:
-    image: "mariadb:${MARIADB_VERSION}"
-    restart: 'always'
+    image: "mariadb:latest"
+    restart: 'unless-stopped'
     volumes:
       - "db_data:/var/lib/mysql"
       - "db_config:/etc/mysql/conf.d"
@@ -12,6 +12,25 @@ services:
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     ports:
       - "3306:3306"
+    healthcheck:
+      test: mariadb-admin ping -h 127.0.0.1
+      start_period: 20s
+      start_interval: 1s
+      interval: 30s
+      timeout: 5s
+
+  backend:
+    build: ./backend
+    restart: 'unless-stopped'
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    ports:
+      - "42069:42069"
+    depends_on:
+      mariadb:
+        condition: service_healthy
 
 volumes:
   db_data:
