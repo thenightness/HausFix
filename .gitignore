@@ -1,2 +1,9 @@
 *.env
+
+*.iws
+*.iml
+*.ipr
 .idea
+target
+build
+out
