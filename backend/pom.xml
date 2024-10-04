@@ -9,24 +9,30 @@
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
+        <!-- MariaDB JDBC Driver --><!--
         <dependency>
-            <!-- MariaDB JDBC Driver -->
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-            <version>3.0.6</version>
+            <version>3.4.1</version>
+        </dependency>-->
+
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>9.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.erosb</groupId>
             <artifactId>everit-json-schema</artifactId>
-            <version>1.14.2</version>
+            <version>1.14.4</version>
         </dependency>
 
         <!-- JSON Library (for JSON Object handling) -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20210307</version> <!-- Diese Library wird für JSON-Objekt-Bearbeitung benötigt -->
+            <version>20240303</version> <!-- Diese Library wird für JSON-Objekt-Bearbeitung benötigt -->
         </dependency>
     </dependencies>
 
@@ -61,6 +67,20 @@
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+            <!--Bundelt alle Dependencies mit in die .jar Datei-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
