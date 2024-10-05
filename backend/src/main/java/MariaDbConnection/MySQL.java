@@ -1,9 +1,6 @@
 package MariaDbConnection;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
 public class MySQL {
@@ -69,6 +66,22 @@ public class MySQL {
                     p.setString(i + 1, values.get(i));
                 }
             p.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void executeSelect(String query){
+        try {
+            PreparedStatement p = instance.connection.prepareStatement(query);
+            ResultSet rs = p.executeQuery();
+
+            while(rs.next()) {
+                for(int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+                    System.out.print(rs.getString(i + 1));
+                    System.out.print("\t| ");
+                }
+                System.out.println();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
