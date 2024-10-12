@@ -9,7 +9,9 @@ RUN --mount=type=cache,target=/root/.m2 mvn -f /usr/src/app/pom.xml clean packag
 
 
 FROM alpine/java:22-jre
+WORKDIR /usr/app
 # Kopiert aus dem Build-Image die fertige .jar
-COPY --from=build /usr/src/app/target/HausFixBackend-1.0-SNAPSHOT.jar /usr/app/HausFixBackend-1.0-SNAPSHOT.jar
+COPY --from=build /usr/src/app/target/HausFixBackend-1.0-SNAPSHOT.jar HausFixBackend-1.0-SNAPSHOT.jar
+COPY --from=build /usr/src/app/src/main/resources/. .
 # Command welcher beim starten des Images ausgeführt wird
 CMD ["java","-jar","/usr/app/HausFixBackend-1.0-SNAPSHOT.jar"]
