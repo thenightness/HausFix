@@ -70,7 +70,18 @@ public class MySQL {
             e.printStackTrace();
         }
     }
-    public static void executeSelect(String query){
+
+    public static ResultSet executeSelect(String query){
+        try {
+            PreparedStatement p = instance.connection.prepareStatement(query);
+             return p.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void executeSelectPrint(String query){
         try {
             PreparedStatement p = instance.connection.prepareStatement(query);
             ResultSet rs = p.executeQuery();
