@@ -10,8 +10,10 @@ public class Reading implements IReading {
 
     @Override
     public UUID getId() {
+        System.out.println("it works");
         return null;
     }
+
 
     @Override
     public void setId(UUID id) {
