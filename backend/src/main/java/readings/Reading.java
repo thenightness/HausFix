@@ -3,95 +3,82 @@ package readings;
 import modules.ICustomer;
 import modules.IReading;
 
+import javax.xml.stream.events.Comment;
 import java.time.LocalDate;
 import java.util.UUID;
 
 public class Reading implements IReading {
 
+    private UUID id;
+    private String comment;
+    private ICustomer customer;
+    private LocalDate dateOfReading;
+    private KindOfMeter kindOfMeter;
+    private Double meterCount;
+    private String meterId;
+    private Boolean substitute;
+
     @Override
-    public UUID getId() {
-        System.out.println("it works");
-        return null;
-    }
-
+    public UUID getId() { return id; }
 
     @Override
-    public void setId(UUID id) {
-
-    }
+    public void setId(UUID id) { this.id = id; }
 
     @Override
     public String getComment() {
-        return null;
+        return comment;
     }
 
     @Override
-    public ICustomer getCustomer() {
-        return null;
-    }
+    public void setComment(String comment) { this.comment = comment; }
 
     @Override
-    public LocalDate getDateOfReading() {
-        return null;
-    }
+    public ICustomer getCustomer() { return customer; }
+
+    @Override
+    public void setCustomer(ICustomer customer) { this.customer = customer;   }
+
+    @Override
+    public LocalDate getDateOfReading() {return dateOfReading;    }
+
+    @Override
+    public void setDateOfReading(LocalDate dateOfReading) { this.dateOfReading = dateOfReading;   }
 
     @Override
     public KindOfMeter getKindOfMeter() {
-        return null;
+        return kindOfMeter;
     }
+
+    @Override
+    public void setKindOfMeter(KindOfMeter kindOfMeter) { this.kindOfMeter = kindOfMeter;   }
 
     @Override
     public Double getMeterCount() {
-        return null;
+        return meterCount;
     }
+
+    @Override
+    public void setMeterCount(Double meterCount) { this.meterCount = meterCount;   }
 
     @Override
     public String getMeterId() {
-        return null;
+        return meterId;
     }
 
     @Override
+    public void setMeterId(String meterId) { this.meterId = meterId;   }
+
+    @Override
     public Boolean getSubstitute() {
-        return null;
+        return substitute;
     }
+
+    @Override
+    public void setSubstitute(Boolean substitute) { this.substitute = substitute;    }
 
     @Override
     public String printDateOfReading() {
         return null;
     }
 
-    @Override
-    public void setComment(String comment) {
-
-    }
-
-    @Override
-    public void setCustomer(ICustomer customer) {
-
-    }
-
-    @Override
-    public void setDateOfReading(LocalDate dateOfReading) {
-
-    }
-
-    @Override
-    public void setKindOfMeter(KindOfMeter kindOfMeter) {
-
-    }
-
-    @Override
-    public void setMeterCount(Double meterCount) {
-
-    }
-
-    @Override
-    public void setMeterId(String meterId) {
-
-    }
-
-    @Override
-    public void setSubstitute(Boolean substitute) {
-
-    }
 }

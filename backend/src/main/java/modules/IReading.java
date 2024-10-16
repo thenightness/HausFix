@@ -9,19 +9,12 @@ public interface IReading extends IId {
    }
 
    String getComment();
-
    ICustomer getCustomer();
-
    LocalDate getDateOfReading();
-
    KindOfMeter getKindOfMeter();
-
    Double getMeterCount();
-
    String getMeterId();
-
    Boolean getSubstitute();
-
    String printDateOfReading();
 
    void setComment(String comment);
