@@ -19,7 +19,7 @@ public class Main {
         MySQL.executeStatement("INSERT INTO users (`name`, `surname`) Values (?, ?)", List.of("jEff", "Besus"));
 
         //Debugging Abfrage
-          MySQL.executeSelect("SELECT * FROM users");
+        MySQL.executeSelectPrint("SELECT * FROM users");
 
         //Temporär damit Backend-Container nicht unnötig neugestartet wird
         while(true){
