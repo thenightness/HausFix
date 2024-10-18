@@ -42,6 +42,15 @@
             <artifactId>json</artifactId>
             <version>20240303</version> <!-- Diese Library wird für JSON-Objekt-Bearbeitung benötigt -->
         </dependency>
+
+        <!-- JUnit Test -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.2</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
