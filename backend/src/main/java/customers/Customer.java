@@ -64,13 +64,14 @@ public class Customer implements ICustomer {
         this.gender = gender;
     }
 
-    public static void updateCustomer(UUID id, String newName, String newSurname) {
-        String query = "UPDATE users SET name = ?, surname = ? WHERE id = ?";
-        MySQL.executeStatement(query, List.of(newName, newSurname, id.toString()));
-    }
-
-    public static void deleteCustomer(UUID id) {
-        String query = "DELETE FROM users WHERE id = ?";
-        MySQL.executeStatement(query, List.of(id.toString()));
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", birthDate=" + birthDate +
+                ", gender=" + gender +
+                '}';
     }
 }
