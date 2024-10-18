@@ -24,6 +24,4 @@ public interface ICustomer extends IId {
    void setBirthDate(LocalDate birtDate);
 
    void setGender(Gender gender);
-
-
 }

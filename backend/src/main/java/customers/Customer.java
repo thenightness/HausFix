@@ -73,5 +73,4 @@ public class Customer implements ICustomer {
         String query = "DELETE FROM users WHERE id = ?";
         MySQL.executeStatement(query, List.of(id.toString()));
     }
-
 }

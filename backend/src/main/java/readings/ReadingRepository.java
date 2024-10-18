@@ -1,11 +1,8 @@
 package readings;
 
-import customers.Customer;
 import customers.CustomerRepository;
 import database.MySQL;
-import modules.ICustomer;
 import modules.IReading;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -29,7 +26,7 @@ public class ReadingRepository {
         MySQL.executeStatement(query, parameters);
     }
 
-    public static Reading getreading(UUID id) throws SQLException {
+    public static Reading getReading(UUID id) throws SQLException {
         String query = "SELECT * FROM readings WHERE id = ?";
         ResultSet rs = MySQL.executeSelect(query);
 
