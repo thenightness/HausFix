@@ -2,8 +2,6 @@ package readings;
 
 import modules.ICustomer;
 import modules.IReading;
-
-import javax.xml.stream.events.Comment;
 import java.time.LocalDate;
 import java.util.UUID;
 
