@@ -8,7 +8,7 @@ import modules.ICustomer;
 
 public class CustomerRepository {
 
-    // Create - Füge einen neuen Kunden hinzu
+    // Create
     public static void createCustomer(Customer customer) throws SQLException {
         String query = "INSERT INTO customers (id, firstName, lastName, birthDate, gender) VALUES (?, ?, ?, ?, ?)";
         MySQL.executeStatement(query, List.of(
@@ -20,24 +20,26 @@ public class CustomerRepository {
         ));
     }
 
-    // Read - Hole einen Kunden basierend auf der UUID
     public static Customer getCustomer(UUID id) throws SQLException {
         String query = "SELECT * FROM customers WHERE id = ?";
-        ResultSet rs = MySQL.executeSelect(query);
+        ResultSet rs = MySQL.executeSelect(query, List.of(id.toString()));
+        Customer customer = null;
 
-        if (rs.next()) {
-            Customer customer = new Customer();
+        if (rs != null && rs.next()) {
+            customer = new Customer();
             customer.setId(UUID.fromString(rs.getString("id")));
             customer.setFirstName(rs.getString("firstName"));
             customer.setLastName(rs.getString("lastName"));
             customer.setBirthDate(LocalDate.parse(rs.getString("birthDate")));
             customer.setGender(ICustomer.Gender.valueOf(rs.getString("gender")));
-            return customer;
         }
-        return null; // Gibt null zurück, wenn kein Kunde gefunden wird
+
+        rs.close(); // Schließe das ResultSet hier
+        return customer;
     }
 
-    // Update - Aktualisiere die Daten eines bestehenden Kunden
+
+    // Update
     public static void updateCustomer(Customer customer) throws SQLException {
         String query = "UPDATE customers SET firstName = ?, lastName = ?, birthDate = ?, gender = ? WHERE id = ?";
         MySQL.executeStatement(query, List.of(
@@ -49,13 +51,31 @@ public class CustomerRepository {
         ));
     }
 
-    // Delete - Lösche einen Kunden aus der Datenbank
+    /*public static void updateCustomer(Customer customer) throws SQLException {
+        String query = "UPDATE customers SET firstName = ?, lastName = ?, birthDate = ?, gender = ? WHERE id = ?";
+
+        // Erstelle PreparedStatement und setze Parameter direkt
+        try (PreparedStatement p = MySQL.instance.connection.prepareStatement(query)) {
+            // Setze die Parameter des PreparedStatements
+            p.setString(1, customer.getFirstName());
+            p.setString(2, customer.getLastName());
+            p.setString(3, customer.getBirthDate().toString());
+            p.setString(4, customer.getGender().name());
+            p.setString(5, customer.getId().toString());
+
+            // Führe das SQL-Update aus
+            stmt.executeUpdate();
+        }
+    }*/
+
+
+    // Delete
     public static void deleteCustomer(UUID id) throws SQLException {
         String query = "DELETE FROM customers WHERE id = ?";
         MySQL.executeStatement(query, List.of(id.toString()));
     }
 
-    // Get All - Hole alle Kunden
+    // Get All
     public static List<Customer> getAllCustomers() throws SQLException {
         String query = "SELECT * FROM customers";
         ResultSet rs = MySQL.executeSelect(query);
@@ -72,4 +92,11 @@ public class CustomerRepository {
         }
         return customers;
     }
+
+    // Delete All
+    public static void deleteAllCustomers() throws SQLException {
+        String query = "DELETE FROM customers";
+        MySQL.executeStatement(query, null);  // Führt das Lösch-Statement aus
+    }
+
 }

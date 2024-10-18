@@ -71,6 +71,15 @@ public class MySQL {
         }
     }
 
+    public static ResultSet executeSelect(String query, List<Object> parameters) throws SQLException {
+        PreparedStatement p = instance.connection.prepareStatement(query);
+        for (int i = 0; i < parameters.size(); i++) {
+            p.setObject(i + 1, parameters.get(i));
+        }
+        return p.executeQuery(); // Gib das ResultSet zurück, ohne es sofort zu schließen
+    }
+
+
     public static ResultSet executeSelect(String query){
         try {
             PreparedStatement p = instance.connection.prepareStatement(query);
