@@ -14,6 +14,13 @@
         <main.class>Main</main.class>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Versions -->
+        <junit-jupiter.version>5.11.2</junit-jupiter.version>
+        <!-- War im Skript in den Properties
+        <maven.compiler.plugin.verion></maven.compiler.plugin.verion>
+        -->
+        <maven.surefire.plugin.version>3.0.0</maven.surefire.plugin.version><!--ToDo: Version überprüfen -->
     </properties>
 
     <dependencies>
@@ -43,11 +50,11 @@
             <version>20240303</version> <!-- Diese Library wird für JSON-Objekt-Bearbeitung benötigt -->
         </dependency>
 
-        <!-- JUnit Test -->
+        <!-- JUnit Tests -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.11.2</version>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -84,6 +91,13 @@
                     </archive>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+            </plugin>
+
             <!--Bundelt alle Dependencies mit in die .jar Datei-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
