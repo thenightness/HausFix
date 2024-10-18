@@ -1,3 +1,4 @@
+import database.DatabaseConnection;
 import database.MySQL;
 
 import java.io.IOException;
@@ -20,6 +21,9 @@ public class Main {
 
         //Debugging Abfrage
         MySQL.executeSelectPrint("SELECT * FROM users");
+
+        DatabaseConnection databaseConnection = new DatabaseConnection();
+        databaseConnection.createAllTables();
 
         //Temporär damit Backend-Container nicht unnötig neugestartet wird
         while(true){
