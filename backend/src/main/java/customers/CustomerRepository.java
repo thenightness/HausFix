@@ -8,19 +8,64 @@ import modules.ICustomer;
 
 public class CustomerRepository {
 
-    // Create
-    public static void createCustomer(Customer customer) throws SQLException {
-        String query = "INSERT INTO customers (id, firstName, lastName, birthDate, gender) VALUES (?, ?, ?, ?, ?)";
-        MySQL.executeStatement(query, List.of(
-                customer.getId().toString(),
-                customer.getFirstName(),
-                customer.getLastName(),
-                customer.getBirthDate().toString(),
-                customer.getGender().name()
-        ));
+    private static void validateCustomerFields(Customer customer) {
+        validateFieldsNotNull(customer.getId(), customer.getFirstName(), customer.getLastName(), customer.getBirthDate(), customer.getGender());
+
+        if (customer.getBirthDate().isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Customer birthDate cannot be in the future");
+        }
+
+        if (customer.getLastName().trim().isEmpty() || customer.getFirstName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Customer first name and last name cannot be empty or null");
+        }
+
+        if (!customer.getFirstName().matches("[a-zA-Z\\s]+") || !customer.getLastName().matches("[a-zA-Z\\s]+")) {
+            throw new IllegalArgumentException("Customer first name and last name cannot contain special characters");
+        }
     }
 
+
+    private static void validateFieldsNotNull(Object... fields) {
+        List<String> fieldNames = List.of("id", "firstName", "lastName", "birthDate", "gender");
+        for (int i = 0; i < fields.length; i++) {
+            if (fields[i] == null) {
+                throw new IllegalArgumentException("Customer " + fieldNames.get(i) + " cannot be null");
+            }
+        }
+    }
+    // Create
+    public static void createCustomer(Customer customer) throws SQLException {
+        validateCustomerFields(customer);
+
+        String query = "INSERT INTO customers (id, firstName, lastName, birthDate, gender) VALUES (?, ?, ?, ?, ?)";
+        try {
+            int rowsAffected = MySQL.executeStatement(query, List.of(
+                    customer.getId().toString(),
+                    customer.getFirstName(),
+                    customer.getLastName(),
+                    customer.getBirthDate().toString(),
+                    customer.getGender().name()
+            ));
+            //System.out.println("Rows affected: " + rowsAffected); nur für debugging nötig
+            if (rowsAffected == 0) {
+                throw new SQLException("Failed to create customer with ID: " + customer.getId());
+            }
+        } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+            System.out.println("Caught SQLIntegrityConstraintViolationException: " + e.getMessage());
+
+            throw new SQLException("A customer with the same ID already exists. Duplicate entries are not allowed.", e);
+        } catch (SQLException e) {
+            throw e;
+        }
+
+    }
+
+
     public static Customer getCustomer(UUID id) throws SQLException {
+
+        if (id == null) {
+            throw new IllegalArgumentException("Customer ID cannot be null");
+        }
         String query = "SELECT * FROM customers WHERE id = ?";
         ResultSet rs = MySQL.executeSelect(query, List.of(id.toString()));
         Customer customer = null;
@@ -41,14 +86,20 @@ public class CustomerRepository {
 
     // Update
     public static void updateCustomer(Customer customer) throws SQLException {
+        validateCustomerFields(customer);
+
         String query = "UPDATE customers SET firstName = ?, lastName = ?, birthDate = ?, gender = ? WHERE id = ?";
-        MySQL.executeStatement(query, List.of(
+        int rowsAffected = MySQL.executeStatement(query, List.of(
                 customer.getFirstName(),
                 customer.getLastName(),
                 customer.getBirthDate().toString(),
                 customer.getGender().name(),
                 customer.getId().toString()
         ));
+        System.out.println("Rows affected: " + rowsAffected);
+        if (rowsAffected == 0) {
+            throw new SQLException("No such customer found with ID: " + customer.getId());
+        }
     }
 
     /*public static void updateCustomer(Customer customer) throws SQLException {
@@ -71,8 +122,15 @@ public class CustomerRepository {
 
     // Delete
     public static void deleteCustomer(UUID id) throws SQLException {
+        if (id == null) {
+            throw new SQLException("Customer ID cannot be null");
+        }
         String query = "DELETE FROM customers WHERE id = ?";
-        MySQL.executeStatement(query, List.of(id.toString()));
+        int rowsAffected = MySQL.executeStatement(query, List.of(id.toString()));
+        if (rowsAffected == 0) {
+            throw new SQLException("No such customer found");
+
+        }
     }
 
     // Get All
