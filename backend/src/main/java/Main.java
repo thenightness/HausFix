@@ -12,13 +12,12 @@ import java.util.UUID;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException, ClassNotFoundException, SQLException, IOException {
-        System.out.println("Hello World!");
+
 
         //Initialisierung der Verbindung zur Datenbank
+        //MySQL.init("127.0.0.1", 3306, "hausfix","default","rfxj7");
 
-        MySQL.init("mariadb", 3306, System.getenv("MYSQL_DATABASE"),System.getenv("MYSQL_USER"),System.getenv("MYSQL_PASSWORD"));
-
-        System.out.println("Connection Successful!");
+        MySQL.init("127.0.0.1", 3306, System.getenv("MYSQL_DATABASE"),System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
 
         //MySQL.executeStatement("DROP TABLE IF EXISTS users", null);
         MySQL.executeStatement("CREATE TABLE IF NOT EXISTS users (`key` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255), `surname` VARCHAR(255), PRIMARY KEY (`key`));", null);
