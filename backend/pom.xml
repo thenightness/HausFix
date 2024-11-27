@@ -18,6 +18,7 @@
         <!-- Dependency Versionen -->
         <junit-jupiter.version>5.11.2</junit-jupiter.version>
         <jersey-version>3.1.9</jersey-version>
+        <jackson.version>2.18.0</jackson.version>
 
         <!-- War im Skript in den Properties <maven.compiler.plugin.verion></maven.compiler.plugin.verion>-->
         <maven.surefire.plugin.version>3.5.1</maven.surefire.plugin.version>
@@ -83,6 +84,18 @@
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>${jersey-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
