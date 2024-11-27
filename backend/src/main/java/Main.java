@@ -4,20 +4,20 @@ import database.DatabaseConnection;
 import database.MySQL;
 import modules.ICustomer;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 public class Main {
-    public static void main(String[] args) throws InterruptedException, ClassNotFoundException, SQLException, IOException {
-
+    public static void main(String[] args) throws InterruptedException, SQLException {
+        System.out.println("Hello World!");
 
         //Initialisierung der Verbindung zur Datenbank
-        //MySQL.init("127.0.0.1", 3306, "hausfix","default","rfxj7");
 
-        MySQL.init("127.0.0.1", 3306, System.getenv("MYSQL_DATABASE"),System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
+        MySQL.init("mariadb", 3306, System.getenv("MYSQL_DATABASE"),System.getenv("MYSQL_USER"),System.getenv("MYSQL_PASSWORD"));
+
+        System.out.println("Connection Successful!");
 
         //MySQL.executeStatement("DROP TABLE IF EXISTS users", null);
         MySQL.executeStatement("CREATE TABLE IF NOT EXISTS users (`key` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255), `surname` VARCHAR(255), PRIMARY KEY (`key`));", null);
@@ -63,12 +63,12 @@ public class Main {
 
 
         // READ ALL
-                System.out.println("Hole alle Kunden aus der Datenbank:");
-                // Aufruf der Methode
-                List<Customer> allCustomers = CustomerRepository.getAllCustomers();
-                for (Customer customer : allCustomers) {
-                    System.out.println(customer);
-                }
+        System.out.println("Hole alle Kunden aus der Datenbank:");
+        // Aufruf der Methode
+        List<Customer> allCustomers = CustomerRepository.getAllCustomers();
+        for (Customer customer : allCustomers) {
+            System.out.println(customer);
+        }
 
             /*try {
                 // UUID des zu aktualisierenden Kunden (Beispiel-UUID eines existierenden Kunden)
