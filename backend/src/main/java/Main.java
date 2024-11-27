@@ -1,16 +1,21 @@
+import com.sun.net.httpserver.HttpServer;
 import customers.Customer;
+import customers.CustomerController;
 import customers.CustomerRepository;
+import customers.CustomerService;
 import database.DatabaseConnection;
 import database.MySQL;
 import modules.ICustomer;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 public class Main {
-    public static void main(String[] args) throws InterruptedException, SQLException {
+    public static void main(String[] args) throws InterruptedException, SQLException, IOException {
         System.out.println("Hello World!");
 
         //Initialisierung der Verbindung zur Datenbank
@@ -20,17 +25,38 @@ public class Main {
         System.out.println("Connection Successful!");
 
         //MySQL.executeStatement("DROP TABLE IF EXISTS users", null);
-        MySQL.executeStatement("CREATE TABLE IF NOT EXISTS users (`key` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255), `surname` VARCHAR(255), PRIMARY KEY (`key`));", null);
-        MySQL.executeStatement("INSERT INTO users (`name`, `surname`) Values (?, ?)", List.of("jEff", "Besus"));
+        //MySQL.executeStatement("CREATE TABLE IF NOT EXISTS users (`key` INT NOT NULL AUTO_INCREMENT, `name` VARCHAR(255), `surname` VARCHAR(255), PRIMARY KEY (`key`));", null);
+        //MySQL.executeStatement("INSERT INTO users (`name`, `surname`) Values (?, ?)", List.of("jEff", "Besus"));
 
         //Debugging Abfrage
-        MySQL.executeSelectPrint("SELECT * FROM users");
+        //MySQL.executeSelectPrint("SELECT * FROM users");
 
         DatabaseConnection databaseConnection = new DatabaseConnection();
         databaseConnection.createAllTables();
+        databaseConnection.executeSqlFile("tables/customers.sql");
+
+        // Initialisiere den HTTP-Server
+        HttpServer server = HttpServer.create(new InetSocketAddress(42069), 0);
+
+        CustomerService customerService = new CustomerService();
+
+        // CustomerController initialisieren
+        new CustomerController(server, customerService);
+
+        // Server starten
+        server.setExecutor(null); // Default executor
+        server.start();
+        System.out.println("Server läuft unter http://localhost:42069");
 
 
-        // CREATE
+        // Registrierung des Shutdown-Hooks
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            MySQL.disconnect();
+            System.out.println("Shutdown-Hook: Verbindung zur Datenbank geschlossen.");
+        }));
+
+
+        /*// CREATE
         System.out.println("Erstelle einen neuen Kunden:");
         Customer newCustomer = new Customer();
         newCustomer.setId(UUID.randomUUID());
@@ -39,7 +65,7 @@ public class Main {
         newCustomer.setBirthDate(LocalDate.of(2024, 10, 1));
         newCustomer.setGender(ICustomer.Gender.M);
         CustomerRepository.createCustomer(newCustomer);
-        System.out.println("Kunde erstellt: " + newCustomer);
+        System.out.println("Kunde erstellt: " + newCustomer);*/
 
         /*// READ
         try {
@@ -62,13 +88,13 @@ public class Main {
         }*/
 
 
-        // READ ALL
+       /* // READ ALL
         System.out.println("Hole alle Kunden aus der Datenbank:");
         // Aufruf der Methode
         List<Customer> allCustomers = CustomerRepository.getAllCustomers();
         for (Customer customer : allCustomers) {
             System.out.println(customer);
-        }
+        }*/
 
             /*try {
                 // UUID des zu aktualisierenden Kunden (Beispiel-UUID eines existierenden Kunden)
@@ -121,5 +147,6 @@ public class Main {
         while(true){
             Thread.sleep(1000);
         }
+
     }
 }

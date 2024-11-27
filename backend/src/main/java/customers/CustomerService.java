@@ -15,14 +15,17 @@ public class CustomerService {
         try {
             return customerRepository.getAllCustomers();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to fetch customers", e);
+            throw new RuntimeException("Failed to fetch customers.sql", e);
         }
     }
 
-    public void createCustomer(Customer customer) {
+    public String createCustomer(Customer customer) {
         try {
-            customer.setId(UUID.randomUUID());
+            if (customer.getId() == null) {
+                customer.setId(UUID.randomUUID());
+            }
             customerRepository.createCustomer(customer);
+            return "Kunde mit ID " + customer.getId() + " erfolgreich erstellt";
         } catch (SQLException e) {
             throw new RuntimeException("Failed to create customer", e);
         }
