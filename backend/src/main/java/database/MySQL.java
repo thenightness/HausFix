@@ -58,16 +58,16 @@ public class MySQL {
     }
 
     //Erstellt Statement und führt es aus
-    public static int executeStatement(String statement, List<String> values) throws SQLException {
+    public static void executeStatement(String statement, List<String> values) {
         try {
             PreparedStatement p = instance.connection.prepareStatement(statement);
-            if(values != null && !values.isEmpty())
+            if(values != null)
                 for(int i = 0; i < values.size(); i++) {
                     p.setString(i + 1, values.get(i));
                 }
-            return p.executeUpdate();  //Gibt jetzt die Anzahl der betroffenen Zeilen zurück für Testing und Debugging
-        } catch (SQLException e) {     // printStackTrace gelöscht weil das jetzt von CRUD behandelt wird
-            throw e;
+            p.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -83,7 +83,7 @@ public class MySQL {
     public static ResultSet executeSelect(String query){
         try {
             PreparedStatement p = instance.connection.prepareStatement(query);
-             return p.executeQuery();
+            return p.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;

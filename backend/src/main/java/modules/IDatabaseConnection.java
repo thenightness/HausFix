@@ -1,9 +1,7 @@
 package modules;
 
-import java.sql.SQLException;
-
 public interface IDatabaseConnection {
-    public void createAllTables() throws SQLException;
+    public void createAllTables();
 
     public void truncateTables();
 
