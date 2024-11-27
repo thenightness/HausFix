@@ -58,16 +58,19 @@ public class MySQL {
     }
 
     //Erstellt Statement und führt es aus
-    public static void executeStatement(String statement, List<String> values) {
+    public static int executeStatement(String statement, List<String> values) {
         try {
             PreparedStatement p = instance.connection.prepareStatement(statement);
-            if(values != null)
-                for(int i = 0; i < values.size(); i++) {
+            if (values != null) {
+                for (int i = 0; i < values.size(); i++) {
                     p.setString(i + 1, values.get(i));
                 }
-            p.executeUpdate();
+            }
+            // Führt das Update aus und gibt die Anzahl der betroffenen Zeilen zurück
+            return p.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            return 0; // Bei Fehlern wird 0 zurückgegeben
         }
     }
 
