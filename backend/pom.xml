@@ -17,6 +17,8 @@
 
         <!-- Dependency Versionen -->
         <junit-jupiter.version>5.11.2</junit-jupiter.version>
+        <jersey-version>3.1.9</jersey-version>
+
         <!-- War im Skript in den Properties <maven.compiler.plugin.verion></maven.compiler.plugin.verion>-->
         <maven.surefire.plugin.version>3.5.1</maven.surefire.plugin.version>
     </properties>
@@ -62,6 +64,25 @@
             <groupId>com.fasterxml.uuid</groupId>
             <artifactId>java-uuid-generator</artifactId>
             <version>5.1.0</version>
+        </dependency>
+
+        <!--Framework für REST-API -->
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-jdk-http</artifactId>
+            <version>${jersey-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${jersey-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>${jersey-version}</version>
         </dependency>
 
         <dependency>
