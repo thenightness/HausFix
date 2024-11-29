@@ -21,8 +21,28 @@ public class CustomerController {
         // Endpoints registrieren
         server.createContext("/customers/create", this::handleCreateCustomer);
         server.createContext("/customers", this::handleGetAllCustomers);
+        server.createContext("/customer/{id}", this::handleGetCustomer);
         //server.createContext("/customers/update", this::handleUpdateCustomer);
         //server.createContext("/customers/delete", this::handleDeleteCustomer);
+    }
+
+    // GET /customer
+    private void handleGetCustomer(HttpExchange exchange) throws IOException {
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            sendResponse(exchange, 405, "Method Not Allowed");
+            return;
+        }
+
+        try {
+            UUID id = 10;
+
+            // Get Customer by ID
+            Customer customer = customerService.getCustomer(id);
+            sendResponse(exchange, 200, "testHALLO");
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
+        }
     }
 
     // GET /customers

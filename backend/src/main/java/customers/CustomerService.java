@@ -11,6 +11,14 @@ public class CustomerService {
         this.customerRepository = new CustomerRepository();
     }
 
+    public Customer getCustomer(UUID id) {
+        try {
+            return customerRepository.getCustomer(id);
+        } catch (SQLException e) {
+            throw new RuntimeException("Customer not found", e);
+        }
+    }
+
     public List<Customer> getAllCustomers() {
         try {
             return customerRepository.getAllCustomers();
