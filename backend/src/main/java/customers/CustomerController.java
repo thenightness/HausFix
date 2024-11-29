@@ -3,6 +3,7 @@ package customers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class CustomerController {
         server.createContext("/customers/create", this::handleCreateCustomer);
         server.createContext("/customers", this::handleGetAllCustomers);
         //server.createContext("/customers/update", this::handleUpdateCustomer);
-        //server.createContext("/customers/delete", this::handleDeleteCustomer);
+        server.createContext("/customers/delete", this::handleDeleteCustomer);
     }
 
     // GET /customers
@@ -79,6 +80,33 @@ public class CustomerController {
         } catch (Exception e) {
             e.printStackTrace();
             sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
+        }
+    }
+
+    private void handleDeleteCustomer(HttpExchange exchange) throws IOException {
+        if (!"DELETE".equalsIgnoreCase(exchange.getRequestMethod())) {
+            sendResponse(exchange, 405, "Method Not Allowed");
+            return;
+        }
+        try {
+            String requestBody = new String(exchange.getRequestBody().readAllBytes());
+            JSONObject json = new JSONObject(requestBody);
+            String id = json.getString("id");
+
+            if (!id.matches("^[0-9a-fA-F-]{36}$")) {
+                sendResponse(exchange, 400, "Invalid UUID format");
+                return;
+            }
+            String responseMessage = customerService.deleteCustomer(id);
+
+            sendResponse(exchange, 200, responseMessage);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            sendResponse(exchange, 400, "Invalid JSON format: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
         }
     }
 

@@ -30,4 +30,25 @@ public class CustomerService {
             throw new RuntimeException("Failed to create customer", e);
         }
     }
+
+    public String deleteCustomer(String id) {
+        try {
+            UUID uuid = UUID.fromString(id);
+
+            boolean isDeleted = customerRepository.deleteCustomer(uuid);
+
+            if (isDeleted) {
+                return "Kunde mit ID " + id + " erfolgreich gelöscht.";
+            } else {
+                return "Kunde mit ID " + id + " wurde nicht gefunden.";
+            }
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid UUID format for ID: " + id, e);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to delete customer with ID: " + id, e);
+        }
+    }
 }
+
+
+

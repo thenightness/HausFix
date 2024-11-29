@@ -51,16 +51,14 @@ public class CustomerRepository {
     }
 
     // Löscht einen Kunden anhand der ID
-    public static void deleteCustomer(UUID id) throws SQLException {
+    public static boolean deleteCustomer(UUID id) throws SQLException {
         if (id == null) {
             throw new IllegalArgumentException("Customer ID cannot be null");
         }
-
         String query = "DELETE FROM customers WHERE id = ?";
         int rowsAffected = MySQL.executeStatement(query, List.of(id.toString()));
-        if (rowsAffected == 0) {
-            throw new SQLException("No such customer found with ID: " + id);
-        }
+
+        return rowsAffected > 0;
     }
 
     // Gibt alle Kunden aus der Datenbank zurück
