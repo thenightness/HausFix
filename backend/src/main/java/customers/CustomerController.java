@@ -20,20 +20,19 @@ public class CustomerController {
         this.customerService = customerService;
 
         // Endpoints registrieren
-        server.createContext("/customers/create", this::handleCreateCustomer);
-        server.createContext("/customers", this::handleGetAllCustomers);
-        server.createContext("/customers/update", this::handleUpdateCustomer);
-        server.createContext("/customers/delete", this::handleDeleteCustomer);
-        server.createContext("/customers/select", this::handleGetCustomer);
+        server.createContext("/customer/create", this::handleCreateCustomer);
+        server.createContext("/customer/select", this::handleGetCustomer);
+        server.createContext("/customer/selectAll", this::handleGetAllCustomers);
+        server.createContext("/customer/update", this::handleUpdateCustomer);
+        server.createContext("/customer/delete", this::handleDeleteCustomer);
     }
 
-    // GET /customer
+    // GET /customer/select
     private void handleGetCustomer(HttpExchange exchange) throws IOException {
         if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendResponse(exchange, 405, "Method Not Allowed");
             return;
         }
-
         try {
             //get requestBody
             String requestBody = new String(exchange.getRequestBody().readAllBytes());
@@ -63,13 +62,12 @@ public class CustomerController {
         }
     }
 
-    // GET /customers
+    // GET /customer/selectAll
     private void handleGetAllCustomers(HttpExchange exchange) throws IOException {
         if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendResponse(exchange, 405, "Method Not Allowed");
             return;
         }
-
         try {
             // Rufe alle Kunden aus dem Service ab
             List<Customer> customers = customerService.getAllCustomers();
@@ -94,13 +92,12 @@ public class CustomerController {
         }
     }
 
-    // POST /customers/create
+    // POST /customer/create
     private void handleCreateCustomer(HttpExchange exchange) throws IOException {
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendResponse(exchange, 405, "Method Not Allowed");
             return;
         }
-
         try {
             // Lese den Request-Body und konvertiere in JSONObject
             String requestBody = new String(exchange.getRequestBody().readAllBytes());
@@ -120,12 +117,11 @@ public class CustomerController {
         }
     }
 
-    // PUT /customers/update
+    // PUT /customer/update
     private void handleUpdateCustomer(HttpExchange exchange) throws IOException {
         if (!"PUT".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendResponse(exchange, 405, "Method Not Allowed");
         }
-
         try {
             // Lese den Request-Body und konvertiere in JSONObject
             String requestBody = new String(exchange.getRequestBody().readAllBytes());
@@ -145,7 +141,7 @@ public class CustomerController {
         }
     }
 
-    // DELETE /customers/delete
+    // DELETE /customer/delete
     private void handleDeleteCustomer(HttpExchange exchange) throws IOException {
         if (!"DELETE".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendResponse(exchange, 405, "Method Not Allowed");
@@ -174,7 +170,6 @@ public class CustomerController {
             sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
         }
     }
-
 
     // Hilfsmethode: JSONObject zu Customer konvertieren
     private Customer convertToCustomer(JSONObject json) {
