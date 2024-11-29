@@ -15,7 +15,7 @@ public class CustomerService {
         try {
             return customerRepository.getAllCustomers();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to fetch customers.sql", e);
+            throw new RuntimeException("Failed to fetch customers: ", e);
         }
     }
 
@@ -27,7 +27,20 @@ public class CustomerService {
             customerRepository.createCustomer(customer);
             return "Kunde mit ID " + customer.getId() + " erfolgreich erstellt";
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to create customer", e);
+            throw new RuntimeException("Failed to create customer: ", e);
+        }
+    }
+
+    public String updateCustomer(Customer customer) {
+        try{
+            if (customer.getId() == null) {
+                throw new RuntimeException("Customer ID not found");
+            }
+            customerRepository.updateCustomer(customer);
+            return "Kunde mit ID " + customer.getId() + " erfolgreich geupdated";
+        }
+        catch (Exception e){
+            throw new RuntimeException("Failed to update customer: ", e);
         }
     }
 

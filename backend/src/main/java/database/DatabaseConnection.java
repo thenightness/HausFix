@@ -42,7 +42,6 @@ public class DatabaseConnection implements IDatabaseConnection {
         MySQL.disconnect();
     }
 
-
     // Ausführen von SQL-Befehlen aus einer Datei
     public void executeSqlFile(String relativePath) {
         try {
@@ -67,5 +66,4 @@ public class DatabaseConnection implements IDatabaseConnection {
             System.err.println("SQL-Fehler: " + e.getMessage());
         }
     }
-
 }

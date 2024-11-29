@@ -135,6 +135,4 @@ public class MySQL {
         }
         return connection;
     }
-
-
 }

@@ -22,7 +22,7 @@ public class CustomerController {
         // Endpoints registrieren
         server.createContext("/customers/create", this::handleCreateCustomer);
         server.createContext("/customers", this::handleGetAllCustomers);
-        //server.createContext("/customers/update", this::handleUpdateCustomer);
+        server.createContext("/customers/update", this::handleUpdateCustomer);
         server.createContext("/customers/delete", this::handleDeleteCustomer);
     }
 
@@ -83,14 +83,42 @@ public class CustomerController {
         }
     }
 
+    // PUT /customers/update
+    private void handleUpdateCustomer(HttpExchange exchange) throws IOException {
+        if (!"PUT".equalsIgnoreCase(exchange.getRequestMethod())) {
+            sendResponse(exchange, 405, "Method Not Allowed");
+        }
+
+        try {
+            // Lese den Request-Body und konvertiere in JSONObject
+            String requestBody = new String(exchange.getRequestBody().readAllBytes());
+            JSONObject json = new JSONObject(requestBody);
+
+            // Konvertiere das JSONObject zu einem Customer-Objekt
+            Customer customer = convertToCustomer(json);
+
+            // Übergabe an den CustomerService
+            String responseMessage = customerService.updateCustomer(customer);
+
+            // Erfolgreiche Antwort
+            sendResponse(exchange, 200, responseMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
+        }
+    }
+
+    // DELETE /customers/delete
     private void handleDeleteCustomer(HttpExchange exchange) throws IOException {
         if (!"DELETE".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendResponse(exchange, 405, "Method Not Allowed");
             return;
         }
         try {
+            // Lese den Request-Body und konvertiere in JSONObject
             String requestBody = new String(exchange.getRequestBody().readAllBytes());
             JSONObject json = new JSONObject(requestBody);
+
             String id = json.getString("id");
 
             if (!id.matches("^[0-9a-fA-F-]{36}$")) {
