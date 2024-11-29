@@ -24,6 +24,43 @@ public class CustomerController {
         server.createContext("/customers", this::handleGetAllCustomers);
         server.createContext("/customers/update", this::handleUpdateCustomer);
         server.createContext("/customers/delete", this::handleDeleteCustomer);
+        server.createContext("/customers/select", this::handleGetCustomer);
+    }
+
+    // GET /customer
+    private void handleGetCustomer(HttpExchange exchange) throws IOException {
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            sendResponse(exchange, 405, "Method Not Allowed");
+            return;
+        }
+
+        try {
+            //get requestBody
+            String requestBody = new String(exchange.getRequestBody().readAllBytes());
+
+            //convert to JSON
+            JSONObject json = new JSONObject(requestBody);
+
+            //get UUID from JSON
+            UUID id = UUID.fromString(json.getString("id"));
+
+            // Get Customer by ID
+            Customer customer = customerService.getCustomer(id);
+
+            JSONObject customerJson = new JSONObject();
+            customerJson.put("id", customer.getId().toString());
+            customerJson.put("firstName", customer.getFirstName());
+            customerJson.put("lastName", customer.getLastName());
+            customerJson.put("birthDate", customer.getBirthDate().toString());
+            customerJson.put("gender", customer.getGender().toString());
+
+            //Respond
+            sendResponse(exchange, 200, customerJson.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
+        }
     }
 
     // GET /customers
