@@ -26,7 +26,7 @@ public class CustomerRepository {
             throw new IllegalArgumentException("Customer ID cannot be null");
         }
 
-        String query = "SELECT * FROM customers.sql WHERE id = ?";
+        String query = "SELECT * FROM customers WHERE id = ?";
         ResultSet rs = MySQL.executeSelect(query, List.of(id.toString()));
         if (rs.next()) {
             return mapResultSetToCustomer(rs);
@@ -56,7 +56,7 @@ public class CustomerRepository {
             throw new IllegalArgumentException("Customer ID cannot be null");
         }
 
-        String query = "DELETE FROM customers.sql WHERE id = ?";
+        String query = "DELETE FROM customers WHERE id = ?";
         int rowsAffected = MySQL.executeStatement(query, List.of(id.toString()));
         if (rowsAffected == 0) {
             throw new SQLException("No such customer found with ID: " + id);
