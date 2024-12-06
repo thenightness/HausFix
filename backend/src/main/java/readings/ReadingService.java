@@ -10,21 +10,21 @@ public class ReadingService {
     public ReadingService() {
         this.readingRepository = new ReadingRepository();
     }
+
     public Reading getReading(UUID id) {
         try {
             return ReadingRepository.getReading(id);
         } catch (SQLException e) {
-            throw new RuntimeException("Reading not found", e);
+            throw new RuntimeException("reading not found", e);
         }
-    //
-    //  public List<Reading> getAllReadings() {
-    //      try {
-    //          return readingRepository.getAllReadings();
-    //      } catch (SQLException e) {
-    //          throw new RuntimeException("Failed to fetch readings: ", e);
-    //      }
-    //  }
+    }
 
+    public List<Reading> getAllReadings() {
+        try {
+            return ReadingRepository.getAllReadings();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch readings: ", e);
+        }
     }
 
     public String createReading(Reading reading) {

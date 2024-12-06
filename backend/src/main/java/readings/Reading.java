@@ -72,7 +72,24 @@ public class Reading implements IReading {
     }
 
     @Override
-    public void setSubstitute(Boolean substitute) { this.substitute = substitute;    }
+    public void setSubstitute(Boolean substitute) {
+        this.substitute = substitute;
+    }
+
+    public Integer getSubstituteAsInt() {
+        if (substitute == null) {
+            return 0;
+        }
+        return substitute ? 1 : 0;
+    }
+
+    public void setSubstituteFromInt(Integer substituteInt) {
+        if (substituteInt == null) {
+            this.substitute = false;
+        } else {
+            this.substitute = substituteInt == 1;
+        }
+    }
 
     @Override
     public String printDateOfReading() {
