@@ -6,6 +6,8 @@ import customers.CustomerService;
 import database.DatabaseConnection;
 import database.MySQL;
 import modules.ICustomer;
+import readings.ReadingController;
+import readings.ReadingService;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -39,9 +41,11 @@ public class Main {
         HttpServer server = HttpServer.create(new InetSocketAddress(42069), 0);
 
         CustomerService customerService = new CustomerService();
+        ReadingService readingService = new ReadingService();
 
         // CustomerController initialisieren
         new CustomerController(server, customerService);
+        new ReadingController(server, readingService);
 
         // Server starten
         server.setExecutor(null); // Default executor
