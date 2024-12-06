@@ -128,6 +128,23 @@ public class ReadingController {
 
     // PUT /reading/update
     private void handleUpdateReading(HttpExchange exchange) throws IOException {
+        if (!"PUT".equalsIgnoreCase(exchange.getRequestMethod())) {
+            sendResponse(exchange, 405, "Method Not Allowed");
+        }
+        try {
+            // Lese den Request-Body und konvertiere in JSONObject
+            String requestBody = new String(exchange.getRequestBody().readAllBytes());
+            JSONObject json = new JSONObject(requestBody);
+            // Convert JSON to Reading
+            Reading reading = convertToReading(json);
+            //Übergabe an Reading Service
+            String responseMessage = readingService.updateReading(reading);
+            //Erfolgreiche Antwort
+            sendResponse(exchange, 200, responseMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
+        }
     }
 
     // DELETE /reading/delete

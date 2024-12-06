@@ -46,20 +46,21 @@ public class ReadingRepository {
     }
 
     // Update - Aktualisiere ein Reading
-    public static void updateReading(Reading reading) throws SQLException {
-        String query = "UPDATE readings SET meterCount = ?, dateOfReading = ?, customerId = ?, kindOfMeter = ?, substitute = ?, comment = ? WHERE id = ?";
+    public static Boolean updateReading(Reading reading) throws SQLException {
+        String query = "UPDATE readings SET meterCount = ?, dateOfReading = ?, customerId = ?, kindOfMeter = ?, substitute = ?, comment = ?, meterId = ? WHERE id = ?";
 
         List<String> parameters = List.of(
                 Double.toString(reading.getMeterCount()),
                 reading.getDateOfReading().toString(),
                 reading.getCustomer().getId().toString(),
                 reading.getKindOfMeter().toString(),
-                Boolean.toString(reading.getSubstitute()),
+                Integer.toString(reading.getSubstitute() ? 1 : 0),
                 reading.getComment() != null ? reading.getComment() : "",
+                reading.getMeterId(),
                 reading.getId().toString()
         );
         // Execute the query with the parameters
-        MySQL.executeStatement(query, parameters);
+        return MySQL.executeStatement(query, parameters) > 0;
     }
 
     // Delete - Lösche ein Reading aus der Datenbank

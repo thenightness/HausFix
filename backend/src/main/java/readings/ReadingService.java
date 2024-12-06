@@ -39,6 +39,24 @@ public class ReadingService {
         }
     }
 
+    public String updateReading(Reading reading) {
+        try{
+            if (reading.getId() == null) {
+                throw new RuntimeException("Reading ID not found");
+            }
+           boolean isUpdated =  readingRepository.updateReading(reading);
+
+            if (isUpdated) {
+                return "Reading mit ID " + reading.getId() + " erfolgreich geupdatet.";
+            } else {
+                return "Reading mit ID " + reading.getId() + " wurde nicht geupdatet.";
+            }
+        }
+        catch (Exception e){
+            throw new RuntimeException("Failed to update reading: ", e);
+        }
+    }
+
     public String deleteReading(String id) {
         try {
             UUID uuid = UUID.fromString(id);
