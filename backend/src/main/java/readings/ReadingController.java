@@ -75,33 +75,47 @@ public class ReadingController {
             sendResponse(exchange, 405, "Method Not Allowed");
             return;
         }
+
         try {
-            // Rufe alle Kunden aus dem Service ab
+            // Rufe alle Readings aus dem Service ab
             List<Reading> readings = readingService.getAllReadings();
 
-            // Konvertiere die Kundenliste in JSON
+            // Konvertiere die Reading-Liste in JSON
             JSONArray jsonResponse = new JSONArray();
             for (Reading reading : readings) {
-                JSONObject readingJson = new JSONObject();
-                readingJson.put("id", reading.getId().toString());
-                readingJson.put("customerId", reading.getCustomer().toString());
-                readingJson.put("meterId", reading.getMeterId());
-                readingJson.put("meterCount", reading.getKindOfMeter().toString());
-                readingJson.put("dateOfReading", reading.getDateOfReading().toString());
-                readingJson.put("KindOfMeter", reading.getKindOfMeter().toString());
-                readingJson.put("comment", reading.getComment());
-                readingJson.put("substitute", reading.getSubstitute().toString());
+                jsonResponse.put(convertToJson(reading));
             }
 
             // Sende die JSON-Antwort zurück
             sendResponse(exchange, 200, jsonResponse.toString());
         } catch (Exception e) {
             e.printStackTrace();
-            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
+            sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
         }
     }
 
- // POST /reading/create
+    // Hilfsmethode: Reading in JSON konvertieren
+    private JSONObject convertToJson(Reading reading) {
+        JSONObject readingJson = new JSONObject();
+        try {
+            readingJson.put("id", reading.getId().toString());
+            readingJson.put("customerId", reading.getCustomer().getId().toString());
+            readingJson.put("meterId", reading.getMeterId());
+            readingJson.put("meterCount", reading.getMeterCount());
+            readingJson.put("dateOfReading", reading.getDateOfReading().toString());
+            readingJson.put("kindOfMeter", reading.getKindOfMeter().toString());
+            readingJson.put("comment", reading.getComment() != null ? reading.getComment() : "");
+            readingJson.put("substitute", reading.getSubstitute());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to convert Reading to JSON", e);
+        }
+        return readingJson;
+    }
+
+
+
+    // POST /reading/create
  private void handleCreateReading(HttpExchange exchange) throws IOException {
      if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
          sendResponse(exchange, 405, "Method Not Allowed");

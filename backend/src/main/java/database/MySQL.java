@@ -129,10 +129,10 @@ public class MySQL {
         return instance;
     }
 
-    public Connection getConnection() {
-        if (connection == null) {
-            throw new IllegalStateException("Connection is not established. Call init() first.");
+    public static Connection getConnection() throws SQLException {
+        if (instance == null || instance.connection == null || instance.connection.isClosed()) {
+            instance.connect(); // Verbindung erneut herstellen
         }
-        return connection;
+        return instance.connection;
     }
 }

@@ -28,39 +28,49 @@ public class CustomerController {
     }
 
     // GET /customer/select
-    private void handleGetCustomer(HttpExchange exchange) throws IOException {
+    void handleGetCustomer(HttpExchange exchange) throws IOException {
         if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendResponse(exchange, 405, "Method Not Allowed");
             return;
         }
+
         try {
-            //get requestBody
-            String requestBody = new String(exchange.getRequestBody().readAllBytes());
+            // Extrahiere die ID aus der Query
+            String query = exchange.getRequestURI().getQuery();
+            if (query == null || !query.contains("id=")) {
+                sendResponse(exchange, 400, "Fehlender Parameter: id");
+                return;
+            }
 
-            //convert to JSON
-            JSONObject json = new JSONObject(requestBody);
+            String id = query.split("id=")[1];
+            UUID customerId = UUID.fromString(id);
 
-            //get UUID from JSON
-            UUID id = UUID.fromString(json.getString("id"));
+            // Rufe den User über den Service ab
+            Customer customer = customerService.getCustomer(customerId);
+            if (customer == null) {
+                sendResponse(exchange, 404, "Kunde nicht gefunden");
+                return;
+            }
 
-            // Get Customer by ID
-            Customer customer = customerService.getCustomer(id);
-
+            // Userdaten in JSON konvertieren
             JSONObject customerJson = new JSONObject();
             customerJson.put("id", customer.getId().toString());
             customerJson.put("firstName", customer.getFirstName());
             customerJson.put("lastName", customer.getLastName());
             customerJson.put("birthDate", customer.getBirthDate().toString());
-            customerJson.put("gender", customer.getGender().toString());
+            customerJson.put("gender", customer.getGender().name());
 
-            //Respond
             sendResponse(exchange, 200, customerJson.toString());
-
+        } catch (IllegalArgumentException e) {
+            sendResponse(exchange, 400, "Ungültige UUID: " + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
         }
     }
+
+
+
 
     // GET /customer/selectAll
     private void handleGetAllCustomers(HttpExchange exchange) throws IOException {
@@ -147,29 +157,33 @@ public class CustomerController {
             sendResponse(exchange, 405, "Method Not Allowed");
             return;
         }
+
         try {
-            // Lese den Request-Body und konvertiere in JSONObject
-            String requestBody = new String(exchange.getRequestBody().readAllBytes());
-            JSONObject json = new JSONObject(requestBody);
-
-            String id = json.getString("id");
-
-            if (!id.matches("^[0-9a-fA-F-]{36}$")) {
-                sendResponse(exchange, 400, "Invalid UUID format");
+            // Lese die ID aus den Query-Parametern
+            String query = exchange.getRequestURI().getQuery();
+            if (query == null || !query.contains("id=")) {
+                sendResponse(exchange, 400, "Fehlender Parameter: id");
                 return;
             }
-            String responseMessage = customerService.deleteCustomer(id);
 
+            String id = query.split("id=")[1];
+
+            // Konvertiere den String in eine UUID
+            UUID customerId = UUID.fromString(id);
+
+            // Übergabe an den CustomerService
+            String responseMessage = customerService.deleteCustomer(String.valueOf(customerId));
+
+            // Erfolgreiche Antwort
             sendResponse(exchange, 200, responseMessage);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            sendResponse(exchange, 400, "Invalid JSON format: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            sendResponse(exchange, 400, "Ungültige UUID: " + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
+            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
         }
     }
+
 
     // Hilfsmethode: JSONObject zu Customer konvertieren
     private Customer convertToCustomer(JSONObject json) {

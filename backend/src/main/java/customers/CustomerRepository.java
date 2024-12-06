@@ -27,13 +27,34 @@ public class CustomerRepository {
         }
 
         String query = "SELECT * FROM customers WHERE id = ?";
-        ResultSet rs = MySQL.executeSelect(query, List.of(id.toString()));
-        if (rs.next()) {
-            return mapResultSetToCustomer(rs);
-        } else {
-            return null; // Kein Kunde gefunden
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = MySQL.getConnection();
+            statement = connection.prepareStatement(query);
+            statement.setString(1, id.toString());
+            resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                return mapResultSetToCustomer(resultSet);
+            }
+        } finally {
+            if (resultSet != null) {
+                resultSet.close(); // Nur das ResultSet schließen
+            }
+            if (statement != null) {
+                statement.close(); // Statement schließen
+            }
+            // Die Verbindung bleibt offen für weitere Nutzung
         }
+
+        return null; // Kein Kunde gefunden
     }
+
+
+
 
     // Aktualisiert einen bestehenden Kunden
     public static void updateCustomer(Customer customer) throws SQLException {

@@ -1,5 +1,7 @@
 package customers;
 
+import org.json.JSONObject;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
@@ -12,12 +14,22 @@ public class CustomerService {
     }
 
     public Customer getCustomer(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Customer ID cannot be null");
+        }
+
         try {
-            return customerRepository.getCustomer(id);
+            Customer customer = customerRepository.getCustomer(id);
+            if (customer == null) {
+                throw new RuntimeException("Customer with ID " + id + " not found");
+            }
+            return customer;
         } catch (SQLException e) {
-            throw new RuntimeException("Customer not found", e);
+            throw new RuntimeException("Error fetching customer with ID " + id, e);
         }
     }
+
+
 
     public List<Customer> getAllCustomers() {
         try {
