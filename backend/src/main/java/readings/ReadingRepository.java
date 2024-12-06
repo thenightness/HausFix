@@ -62,10 +62,14 @@ public class ReadingRepository {
         MySQL.executeStatement(query, parameters);
     }
 
-    // Delete - Lösche einen Reading aus der Datenbank
-    public static void deleteReading(UUID id) throws SQLException {
+    // Delete - Lösche ein Reading aus der Datenbank
+    public static boolean deleteReading(UUID id) throws SQLException {
+        if (id == null) {
+            throw new IllegalArgumentException("Reading ID cannot be null");
+        }
         String query = "DELETE FROM readings WHERE id = ?";
-        MySQL.executeStatement(query, List.of(id.toString()));
+
+        return MySQL.executeStatement(query, List.of(id.toString())) > 0;
     }
 
     // Get All - Hole alle Readings

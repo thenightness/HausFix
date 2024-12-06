@@ -38,6 +38,24 @@ public class ReadingService {
             throw new RuntimeException("Failed to create reading: ", e);
         }
     }
+
+    public String deleteReading(String id) {
+        try {
+            UUID uuid = UUID.fromString(id);
+
+            boolean isDeleted = readingRepository.deleteReading(uuid);
+
+            if (isDeleted) {
+                return "Reading mit ID " + id + " erfolgreich gelöscht.";
+            } else {
+                return "Reading mit ID " + id + " wurde nicht gefunden.";
+            }
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid UUID format for ID: " + id, e);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to delete reading with ID: " + id, e);
+        }
+    }
 }
 
 

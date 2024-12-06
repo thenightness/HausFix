@@ -7,6 +7,7 @@ import customers.CustomerService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -130,7 +131,33 @@ public class ReadingController {
     }
 
     // DELETE /reading/delete
-    private void handleDeleteReading(HttpExchange exchange) {
+    private void handleDeleteReading(HttpExchange exchange) throws IOException {
+        if (!"DELETE".equalsIgnoreCase(exchange.getRequestMethod())) {
+            sendResponse(exchange, 405, "Method Not Allowed");
+            return;
+        }
+        try {
+            // Lese den Request-Body und konvertiere in JSONObject
+            String requestBody = new String(exchange.getRequestBody().readAllBytes());
+            JSONObject json = new JSONObject(requestBody);
+
+            String id = json.getString("id");
+
+            if (!id.matches("^[0-9a-fA-F-]{36}$")) {
+                sendResponse(exchange, 400, "Invalid UUID format");
+                return;
+            }
+            String responseMessage = readingService.deleteReading(id);
+
+            sendResponse(exchange, 200, responseMessage);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            sendResponse(exchange, 400, "Invalid JSON format: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
+        }
     }
 
     // Hilfsmethode: JSONObject zu Reading konvertieren
