@@ -50,24 +50,39 @@ public class MySQL {
     }
 
     public static void disconnect() {
+        if (instance == null || instance.connection == null) {
+            System.out.println("Keine Verbindung zu schließen.");
+            return;
+        }
+
         try {
-            instance.connection.close();
+            if (!instance.connection.isClosed()) {
+                instance.connection.close();
+                System.out.println("Datenbankverbindung erfolgreich geschlossen.");
+            } else {
+                System.out.println("Die Verbindung war bereits geschlossen.");
+            }
         } catch (SQLException e) {
+            System.err.println("Fehler beim Schließen der Verbindung: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+
     //Erstellt Statement und führt es aus
-    public static void executeStatement(String statement, List<String> values) {
+    public static int executeStatement(String statement, List<String> values) {
         try {
             PreparedStatement p = instance.connection.prepareStatement(statement);
-            if(values != null)
-                for(int i = 0; i < values.size(); i++) {
+            if (values != null) {
+                for (int i = 0; i < values.size(); i++) {
                     p.setString(i + 1, values.get(i));
                 }
-            p.executeUpdate();
+            }
+            // Führt das Update aus und gibt die Anzahl der betroffenen Zeilen zurück
+            return p.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            return 0; // Bei Fehlern wird 0 zurückgegeben
         }
     }
 
@@ -105,5 +120,19 @@ public class MySQL {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static MySQL getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("MySQL is not initialized. Call init() first.");
+        }
+        return instance;
+    }
+
+    public static Connection getConnection() throws SQLException {
+        if (instance == null || instance.connection == null || instance.connection.isClosed()) {
+            instance.connect(); // Verbindung erneut herstellen
+        }
+        return instance.connection;
     }
 }
