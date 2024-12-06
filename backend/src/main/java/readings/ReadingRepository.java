@@ -13,15 +13,16 @@ import java.util.UUID;
 public class ReadingRepository {
 
     public static void createReading(Reading reading) throws SQLException {
-        String query = "INSERT INTO readings (id, meterCount, DateOfReading, customer, kindOfMeter, substitute, comment) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO readings (id, meterCount, DateOfReading, customerId, kindOfMeter, substitute, comment, meterId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         List<String> parameters = List.of(
                 reading.getId().toString(),
                 Double.toString(reading.getMeterCount()),
                 reading.getDateOfReading().toString(),
                 reading.getCustomer().getId().toString(),
                 reading.getKindOfMeter().toString(),
-                Boolean.toString(reading.getSubstitute()),
-                reading.getComment() != null ? reading.getComment() : ""
+                Integer.toString(reading.getSubstitute() ? 1 : 0),
+                reading.getComment() != null ? reading.getComment() : "",
+                reading.getMeterId()
         );
         MySQL.executeStatement(query, parameters);
     }
