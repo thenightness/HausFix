@@ -1,14 +1,18 @@
 package readings;
 
 import customers.Customer;
+import customers.CustomerController;
 import customers.CustomerRepository;
 import customers.CustomerService;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import exceptions.CustomerNotFoundException;
+import exceptions.ReadingNotFoundException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import util.ResponseUtil;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,163 +36,157 @@ public class ReadingController {
         server.createContext("/reading/delete", this::handleDeleteReading);
     }
 
+    @FunctionalInterface
+    public interface ControllerAction {
+        void execute(HttpExchange exchange) throws Exception;
+    }
+    private void handleRequest(HttpExchange exchange, ReadingController.ControllerAction action) throws IOException {
+        try {
+            action.execute(exchange);
+        } catch (JSONException e) {
+            // 400 Bad Request falls JSON-Format fehlerhaft
+            ResponseUtil.sendResponse(exchange, 400, "JSON-Format fehlerhaft: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            // 400 Bad Request für fehlerhafte Anfragen
+            ResponseUtil.sendResponse(exchange, 400, e.getMessage());
+        } catch (ReadingNotFoundException e) {
+            // 404 Not Found für fehlende Readings
+            ResponseUtil.sendResponse(exchange, 404, e.getMessage());
+        } catch (Exception e) {
+            // 500 Internal Server Error für alles andere
+            e.printStackTrace();
+            ResponseUtil.sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
+        }
+    }
+
   // GET /reading/select
   private void handleGetReading(HttpExchange exchange) throws IOException {
-      if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-          sendResponse(exchange, 405, "Method Not Allowed");
-          return;
-      }
-      try {
-          //get requestBody
-          String requestBody = new String(exchange.getRequestBody().readAllBytes());
+      handleRequest(exchange, ex -> {
+          if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) {
+              ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
+              return;
+          }
 
-          //convert to JSON
-          JSONObject json = new JSONObject(requestBody);
+          //uuid vom path holen
+          String path = ex.getRequestURI().getPath();
+          String[] pathSegments = path.split("/");
+          if (pathSegments.length < 4) {
+              throw new IllegalArgumentException("Fehlender Parameter: id");
+          }
 
-          //get UUID from JSON
-          UUID id = UUID.fromString(json.getString("id"));
+          String id = pathSegments[3];
+          UUID readingId = UUID.fromString(id);
 
-          // Get Reading by ID
-          Reading reading = readingService.getReading(id);
+          Reading reading = readingService.getReading(readingId);
 
           JSONObject readingJson = new JSONObject();
           readingJson.put("id", reading.getId().toString());
           readingJson.put("customerId", reading.getCustomer().toString());
           readingJson.put("meterId", reading.getMeterId());
-          readingJson.put("meterCount", reading.getKindOfMeter().toString());
+          readingJson.put("meterCount", reading.getMeterCount().toString());
           readingJson.put("dateOfReading", reading.getDateOfReading().toString());
           readingJson.put("KindOfMeter", reading.getKindOfMeter().toString());
           readingJson.put("comment", reading.getComment());
           readingJson.put("substitute", reading.getSubstitute().toString());
 
           //Respond
-          sendResponse(exchange, 200, readingJson.toString());
+          ResponseUtil.sendResponse(ex, 200, readingJson.toString());
 
-      } catch (Exception e) {
-          e.printStackTrace();
-          sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
-      }
+
+      });
   }
 
     private void handleGetAllReadings(HttpExchange exchange) throws IOException {
-        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "Method Not Allowed");
-            return;
-        }
-
-        try {
-            // Rufe alle Readings aus dem Service ab
-            List<Reading> readings = readingService.getAllReadings();
-
-            // Konvertiere die Reading-Liste in JSON
-            JSONArray jsonResponse = new JSONArray();
-            for (Reading reading : readings) {
-                jsonResponse.put(convertToJson(reading));
+        handleRequest(exchange, ex -> {
+            if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) {
+                ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
+                return;
             }
 
-            // Sende die JSON-Antwort zurück
-            sendResponse(exchange, 200, jsonResponse.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
-        }
-    }
+            List<Reading> readings = readingService.getAllReadings();
 
-    // Hilfsmethode: Reading in JSON konvertieren
-    private JSONObject convertToJson(Reading reading) {
-        JSONObject readingJson = new JSONObject();
-        try {
-            readingJson.put("id", reading.getId().toString());
-            readingJson.put("customerId", reading.getCustomer().getId().toString());
-            readingJson.put("meterId", reading.getMeterId());
-            readingJson.put("meterCount", reading.getMeterCount());
-            readingJson.put("dateOfReading", reading.getDateOfReading().toString());
-            readingJson.put("kindOfMeter", reading.getKindOfMeter().toString());
-            readingJson.put("comment", reading.getComment() != null ? reading.getComment() : "");
-            readingJson.put("substitute", reading.getSubstitute());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to convert Reading to JSON", e);
-        }
-        return readingJson;
-    }
+            JSONArray jsonResponse = new JSONArray();
+            for (Reading reading : readings) {
+                JSONObject readingJson = new JSONObject();
+                readingJson.put("id", reading.getId().toString());
+                readingJson.put("customerId", reading.getCustomer().getId().toString());
+                readingJson.put("meterId", reading.getMeterId());
+                readingJson.put("meterCount", reading.getMeterCount());
+                readingJson.put("dateOfReading", reading.getDateOfReading().toString());
+                readingJson.put("kindOfMeter", reading.getKindOfMeter().toString());
+                readingJson.put("comment", reading.getComment() != null ? reading.getComment() : "");
+                readingJson.put("substitute", reading.getSubstitute() != null ? reading.getSubstitute().toString() : "");
 
+                jsonResponse.put(readingJson);
+            }
+
+
+            ResponseUtil.sendResponse(ex, 200, jsonResponse.toString());
+        });
+    }
 
 
     // POST /reading/create
  private void handleCreateReading(HttpExchange exchange) throws IOException {
-     if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-         sendResponse(exchange, 405, "Method Not Allowed");
-         return;
-     }
-     try {
-         // Lese den Request-Body und konvertiere in JSONObject
-         String requestBody = new String(exchange.getRequestBody().readAllBytes());
+     handleRequest(exchange, ex -> {
+         if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
+             ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
+             return;
+         }
+
+         String requestBody = new String(ex.getRequestBody().readAllBytes());
          JSONObject json = new JSONObject(requestBody);
 
-         // Konvertiere das JSONObject zu einem Reading-Objekt
          Reading reading = convertToReading(json);
 
-         // Übergabe an den ReadingService
          String responseMessage = readingService.createReading(reading);
 
-         // Erfolgreiche Antwort
-         sendResponse(exchange, 201, responseMessage);
-     } catch (Exception e) {
-         e.printStackTrace();
-         sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
-     }
+         ResponseUtil.sendResponse(ex, 201, responseMessage);
+
+
+     });
  }
 
     // PUT /reading/update
     private void handleUpdateReading(HttpExchange exchange) throws IOException {
-        if (!"PUT".equalsIgnoreCase(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "Method Not Allowed");
-        }
-        try {
-            // Lese den Request-Body und konvertiere in JSONObject
-            String requestBody = new String(exchange.getRequestBody().readAllBytes());
-            JSONObject json = new JSONObject(requestBody);
-            // Convert JSON to Reading
-            Reading reading = convertToReading(json);
-            //Übergabe an Reading Service
-            String responseMessage = readingService.updateReading(reading);
-            //Erfolgreiche Antwort
-            sendResponse(exchange, 200, responseMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
-        }
-    }
+        handleRequest(exchange, ex -> {
+            if (!"PUT".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendResponse(exchange, 405, "Methode nicht erlaubt");
+            }
+            String responseMessage = null;
 
+            String requestBody = new String(ex.getRequestBody().readAllBytes());
+            JSONObject json = new JSONObject(requestBody);
+
+            Reading reading = convertToReading(json);
+
+            responseMessage = readingService.updateReading(reading);
+
+            ResponseUtil.sendResponse(ex, 200, responseMessage);
+
+        });
+    }
     // DELETE /reading/delete
     private void handleDeleteReading(HttpExchange exchange) throws IOException {
-        if (!"DELETE".equalsIgnoreCase(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "Method Not Allowed");
-            return;
-        }
-        try {
-            // Lese den Request-Body und konvertiere in JSONObject
-            String requestBody = new String(exchange.getRequestBody().readAllBytes());
-            JSONObject json = new JSONObject(requestBody);
-
-            String id = json.getString("id");
-
-            if (!id.matches("^[0-9a-fA-F-]{36}$")) {
-                sendResponse(exchange, 400, "Invalid UUID format");
+        handleRequest(exchange, ex -> {
+            if (!"DELETE".equalsIgnoreCase(ex.getRequestMethod())) {
+                ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
                 return;
             }
-            String responseMessage = readingService.deleteReading(id);
 
-            sendResponse(exchange, 200, responseMessage);
+            String path = ex.getRequestURI().getPath();
+            String[] pathSegments = path.split("/");
+            if (pathSegments.length < 4) {
+                throw new IllegalArgumentException("Fehlender Parameter: id");
+            }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-            sendResponse(exchange, 400, "Invalid JSON format: " + e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
-        }
+            String id = pathSegments[3];
+            UUID readingId = UUID.fromString(id);
+
+            String responseMessage = readingService.deleteReading(readingId.toString());
+
+            ResponseUtil.sendResponse(ex, 200, responseMessage);
+        });
     }
 
     // Hilfsmethode: JSONObject zu Reading konvertieren

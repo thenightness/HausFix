@@ -2,9 +2,11 @@ package customers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import exceptions.CustomerNotFoundException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import util.ResponseUtil;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -27,32 +29,52 @@ public class CustomerController {
         server.createContext("/customer/delete", this::handleDeleteCustomer);
     }
 
+    @FunctionalInterface
+    public interface ControllerAction {
+        void execute(HttpExchange exchange) throws Exception;
+    }
+    private void handleRequest(HttpExchange exchange, ControllerAction action) throws IOException {
+        try {
+            action.execute(exchange);
+        } catch (JSONException e) {
+            // 400 Bad Request falls JSON-Format fehlerhaft
+            ResponseUtil.sendResponse(exchange, 400, "JSON-Format fehlerhaft: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            // 400 Bad Request für fehlerhafte Anfragen
+            ResponseUtil.sendResponse(exchange, 400, e.getMessage());
+        } catch (CustomerNotFoundException e) {
+            // 404 Not Found für fehlende Kunden
+            ResponseUtil.sendResponse(exchange, 404, e.getMessage());
+        } catch (Exception e) {
+            // 500 Internal Server Error für alles andere
+            e.printStackTrace();
+            ResponseUtil.sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
+        }
+    }
+
+
+
     // GET /customer/select
     void handleGetCustomer(HttpExchange exchange) throws IOException {
-        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "Method Not Allowed");
-            return;
-        }
-
-        try {
-            // Extrahiere die ID aus der Query
-            String query = exchange.getRequestURI().getQuery();
-            if (query == null || !query.contains("id=")) {
-                sendResponse(exchange, 400, "Fehlender Parameter: id");
+        handleRequest(exchange, ex -> {
+            if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) {
+                ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
                 return;
             }
 
-            String id = query.split("id=")[1];
+            //uuid vom path holen
+            String path = ex.getRequestURI().getPath();
+            String[] pathSegments = path.split("/");
+            if (pathSegments.length < 4) {
+                throw new IllegalArgumentException("Fehlender Parameter: id");
+            }
+
+            String id = pathSegments[3];
             UUID customerId = UUID.fromString(id);
 
-            // Rufe den User über den Service ab
             Customer customer = customerService.getCustomer(customerId);
-            if (customer == null) {
-                sendResponse(exchange, 404, "Kunde nicht gefunden");
-                return;
-            }
 
-            // Userdaten in JSON konvertieren
+            // zum JSON konvertieren
             JSONObject customerJson = new JSONObject();
             customerJson.put("id", customer.getId().toString());
             customerJson.put("firstName", customer.getFirstName());
@@ -60,13 +82,8 @@ public class CustomerController {
             customerJson.put("birthDate", customer.getBirthDate().toString());
             customerJson.put("gender", customer.getGender().name());
 
-            sendResponse(exchange, 200, customerJson.toString());
-        } catch (IllegalArgumentException e) {
-            sendResponse(exchange, 400, "Ungültige UUID: " + e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
-        }
+            ResponseUtil.sendResponse(ex, 200, customerJson.toString());
+        });
     }
 
 
@@ -74,15 +91,14 @@ public class CustomerController {
 
     // GET /customer/selectAll
     private void handleGetAllCustomers(HttpExchange exchange) throws IOException {
-        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "Method Not Allowed");
-            return;
-        }
-        try {
-            // Rufe alle Kunden aus dem Service ab
+        handleRequest(exchange, ex -> {
+            if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) {
+                ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
+                return;
+            }
+
             List<Customer> customers = customerService.getAllCustomers();
 
-            // Konvertiere die Kundenliste in JSON
             JSONArray jsonResponse = new JSONArray();
             for (Customer customer : customers) {
                 JSONObject customerJson = new JSONObject();
@@ -91,99 +107,78 @@ public class CustomerController {
                 customerJson.put("lastName", customer.getLastName());
                 customerJson.put("birthDate", customer.getBirthDate().toString());
                 customerJson.put("gender", customer.getGender().toString());
+
                 jsonResponse.put(customerJson);
             }
 
-            // Sende die JSON-Antwort zurück
-            sendResponse(exchange, 200, jsonResponse.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
-        }
+            ResponseUtil.sendResponse(ex, 200, jsonResponse.toString());
+        });
     }
 
     // POST /customer/create
     private void handleCreateCustomer(HttpExchange exchange) throws IOException {
-        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "Method Not Allowed");
-            return;
-        }
-        try {
-            // Lese den Request-Body und konvertiere in JSONObject
-            String requestBody = new String(exchange.getRequestBody().readAllBytes());
-            JSONObject json = new JSONObject(requestBody);
-
-            // Konvertiere das JSONObject zu einem Customer-Objekt
-            Customer customer = convertToCustomer(json);
-
-            // Übergabe an den CustomerService
-            String responseMessage = customerService.createCustomer(customer);
-
-            // Erfolgreiche Antwort
-            sendResponse(exchange, 201, responseMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
-        }
-    }
-
-    // PUT /customer/update
-    private void handleUpdateCustomer(HttpExchange exchange) throws IOException {
-        if (!"PUT".equalsIgnoreCase(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "Method Not Allowed");
-        }
-        try {
-            // Lese den Request-Body und konvertiere in JSONObject
-            String requestBody = new String(exchange.getRequestBody().readAllBytes());
-            JSONObject json = new JSONObject(requestBody);
-
-            // Konvertiere das JSONObject zu einem Customer-Objekt
-            Customer customer = convertToCustomer(json);
-
-            // Übergabe an den CustomerService
-            String responseMessage = customerService.updateCustomer(customer);
-
-            // Erfolgreiche Antwort
-            sendResponse(exchange, 200, responseMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
-        }
-    }
-
-    // DELETE /customer/delete
-    private void handleDeleteCustomer(HttpExchange exchange) throws IOException {
-        if (!"DELETE".equalsIgnoreCase(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "Method Not Allowed");
-            return;
-        }
-
-        try {
-            // Lese die ID aus den Query-Parametern
-            String query = exchange.getRequestURI().getQuery();
-            if (query == null || !query.contains("id=")) {
-                sendResponse(exchange, 400, "Fehlender Parameter: id");
+        handleRequest(exchange, ex -> {
+            if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
+                ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
                 return;
             }
 
-            String id = query.split("id=")[1];
+                String requestBody = new String(ex.getRequestBody().readAllBytes());
+                JSONObject json = new JSONObject(requestBody);
 
-            // Konvertiere den String in eine UUID
-            UUID customerId = UUID.fromString(id);
+                Customer customer = convertToCustomer(json);
 
-            // Übergabe an den CustomerService
-            String responseMessage = customerService.deleteCustomer(String.valueOf(customerId));
+                String responseMessage = customerService.createCustomer(customer);
 
-            // Erfolgreiche Antwort
-            sendResponse(exchange, 200, responseMessage);
-        } catch (IllegalArgumentException e) {
-            sendResponse(exchange, 400, "Ungültige UUID: " + e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
-        }
+                ResponseUtil.sendResponse(ex, 201, responseMessage);
+
+
+        });
     }
 
+
+
+    // PUT /customer/update
+    private void handleUpdateCustomer(HttpExchange exchange) throws IOException {
+        handleRequest(exchange, ex -> {
+            if (!"PUT".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendResponse(exchange, 405, "Methode nicht erlaubt");
+            }
+
+                String requestBody = new String(ex.getRequestBody().readAllBytes());
+                JSONObject json = new JSONObject(requestBody);
+
+                Customer customer = convertToCustomer(json);
+
+                String responseMessage = customerService.updateCustomer(customer);
+
+            ResponseUtil.sendResponse(ex, 200, responseMessage);
+
+        });
+}
+
+    // DELETE /customer/delete
+    private void handleDeleteCustomer(HttpExchange exchange) throws IOException {
+        handleRequest(exchange, ex -> {
+            if (!"DELETE".equalsIgnoreCase(ex.getRequestMethod())) {
+                ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
+                return;
+            }
+
+            String path = ex.getRequestURI().getPath();
+            String[] pathSegments = path.split("/");
+            if (pathSegments.length < 4) {
+                throw new IllegalArgumentException("Fehlender Parameter: id");
+            }
+
+            String id = pathSegments[3];
+            UUID customerId = UUID.fromString(id);
+
+            String responseMessage = customerService.deleteCustomer(customerId.toString());
+
+            ResponseUtil.sendResponse(ex, 200, responseMessage);
+        });
+    }
 
     // Hilfsmethode: JSONObject zu Customer konvertieren
     private Customer convertToCustomer(JSONObject json) {

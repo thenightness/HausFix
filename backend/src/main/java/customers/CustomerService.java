@@ -1,5 +1,6 @@
 package customers;
 
+import exceptions.CustomerNotFoundException;
 import org.json.JSONObject;
 
 import java.sql.SQLException;
@@ -21,7 +22,7 @@ public class CustomerService {
         try {
             Customer customer = customerRepository.getCustomer(id);
             if (customer == null) {
-                throw new RuntimeException("Customer with ID " + id + " not found");
+                throw new CustomerNotFoundException("Customer with ID " + id + " not found");
             }
             return customer;
         } catch (SQLException e) {
@@ -48,39 +49,46 @@ public class CustomerService {
             return "Kunde mit ID " + customer.getId() + " erfolgreich erstellt";
         } catch (SQLException e) {
             throw new RuntimeException("Failed to create customer: ", e);
+        }catch (IllegalArgumentException e) {
+            throw new RuntimeException("Customer ID darf nicht null sein", e);
         }
     }
 
     public String updateCustomer(Customer customer) {
-        try{
-            if (customer.getId() == null) {
-                throw new RuntimeException("Customer ID not found");
-            }
-            customerRepository.updateCustomer(customer);
-            return "Kunde mit ID " + customer.getId() + " erfolgreich geupdated";
+        if (customer.getId() == null) {
+            throw new IllegalArgumentException("Customer ID darf nicht null sein");
         }
-        catch (Exception e){
-            throw new RuntimeException("Failed to update customer: ", e);
+        try {
+            customerRepository.updateCustomer(customer);
+            return "Kunde mit ID " + customer.getId() + " erfolgreich geupdatet";
+        } catch (CustomerNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Fehler beim Updaten vom Kunden: ", e);
         }
     }
 
     public String deleteCustomer(String id) {
         try {
+            // Validate and convert the UUID
             UUID uuid = UUID.fromString(id);
 
+            // Attempt to delete the customer
             boolean isDeleted = customerRepository.deleteCustomer(uuid);
 
+            // Return success if deleted, otherwise throw an exception
             if (isDeleted) {
                 return "Kunde mit ID " + id + " erfolgreich gelöscht.";
             } else {
-                return "Kunde mit ID " + id + " wurde nicht gefunden.";
+                throw new CustomerNotFoundException("Kunde mit ID " + id + " wurde nicht gefunden.");
             }
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid UUID format for ID: " + id, e);
+            throw new IllegalArgumentException("Invalid UUID format for ID: " + id, e);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to delete customer with ID: " + id, e);
         }
     }
+
 }
 
 

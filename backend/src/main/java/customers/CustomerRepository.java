@@ -4,6 +4,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
 import database.MySQL;
+import exceptions.CustomerNotFoundException;
 import modules.ICustomer;
 
 public class CustomerRepository {
@@ -67,7 +68,7 @@ public class CustomerRepository {
                 customer.getId().toString()
         ));
         if (rowsAffected == 0) {
-            throw new SQLException("No such customer found with ID: " + customer.getId());
+            throw new CustomerNotFoundException("Kein Kunde mit ID: " + customer.getId());
         }
     }
 
