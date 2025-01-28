@@ -1,5 +1,9 @@
 package readings;
 
+import customers.Customer;
+import exceptions.CustomerNotFoundException;
+import exceptions.ReadingNotFoundException;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
@@ -12,16 +16,24 @@ public class ReadingService {
     }
 
     public Reading getReading(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Reading ID cannot be null");
+        }
+
         try {
-            return ReadingRepository.getReading(id);
+            Reading reading = readingRepository.getReading(id);
+            if (reading == null) {
+                throw new ReadingNotFoundException("Reading with ID " + id + " not found");
+            }
+            return reading;
         } catch (SQLException e) {
-            throw new RuntimeException("reading not found", e);
+            throw new RuntimeException("Error fetching reading with ID " + id, e);
         }
     }
 
     public List<Reading> getAllReadings() {
         try {
-            return ReadingRepository.getAllReadings();
+            return readingRepository.getAllReadings();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to fetch readings: ", e);
         }
@@ -40,36 +52,34 @@ public class ReadingService {
     }
 
     public String updateReading(Reading reading) {
-        try{
-            if (reading.getId() == null) {
-                throw new RuntimeException("Reading ID not found");
-            }
-           boolean isUpdated =  readingRepository.updateReading(reading);
-
-            if (isUpdated) {
-                return "Reading mit ID " + reading.getId() + " erfolgreich geupdatet.";
-            } else {
-                return "Reading mit ID " + reading.getId() + " wurde nicht geupdatet.";
-            }
+        if (reading.getId() == null) {
+            throw new IllegalArgumentException("Reading ID darf nicht null sein");
         }
-        catch (Exception e){
-            throw new RuntimeException("Failed to update reading: ", e);
+        try {
+            readingRepository.updateReading(reading);
+            return "Reading mit ID " + reading.getId() + " erfolgreich geupdatet";
+        } catch (ReadingNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Fehler beim Updaten vom Reading: ", e);
         }
     }
 
     public String deleteReading(String id) {
         try {
+            // Validate and convert the UUID
             UUID uuid = UUID.fromString(id);
 
             boolean isDeleted = readingRepository.deleteReading(uuid);
 
+            // Return success if deleted, otherwise throw an exception
             if (isDeleted) {
                 return "Reading mit ID " + id + " erfolgreich gelöscht.";
             } else {
-                return "Reading mit ID " + id + " wurde nicht gefunden.";
+                throw new ReadingNotFoundException("Reading mit ID " + id + " wurde nicht gefunden.");
             }
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid UUID format for ID: " + id, e);
+            throw new IllegalArgumentException("Invalid UUID format for ID: " + id, e);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to delete reading with ID: " + id, e);
         }

@@ -2,6 +2,8 @@ package readings;
 
 import customers.CustomerRepository;
 import database.MySQL;
+import exceptions.CustomerNotFoundException;
+import exceptions.ReadingNotFoundException;
 import modules.IReading;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,10 +49,10 @@ public class ReadingRepository {
 
 
     // Update - Aktualisiere ein Reading
-    public static Boolean updateReading(Reading reading) throws SQLException {
+    public static void updateReading(Reading reading) throws SQLException {
         String query = "UPDATE readings SET meterCount = ?, dateOfReading = ?, customerId = ?, kindOfMeter = ?, substitute = ?, comment = ?, meterId = ? WHERE id = ?";
 
-        List<String> parameters = List.of(
+        int rowsAffected = MySQL.executeStatement(query, List.of(
                 Double.toString(reading.getMeterCount()),
                 reading.getDateOfReading().toString(),
                 reading.getCustomer().getId().toString(),
@@ -59,9 +61,10 @@ public class ReadingRepository {
                 reading.getComment() != null ? reading.getComment() : "",
                 reading.getMeterId(),
                 reading.getId().toString()
-        );
-        // Execute the query with the parameters
-        return MySQL.executeStatement(query, parameters) > 0;
+        ));
+        if (rowsAffected == 0) {
+            throw new ReadingNotFoundException("Kein Reading mit ID: " + reading.getId());
+        }
     }
 
     // Delete - Lösche ein Reading aus der Datenbank
