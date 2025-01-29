@@ -4,6 +4,7 @@ import customers.CustomerController;
 import customers.CustomerRepository;
 import customers.CustomerService;
 import database.DatabaseConnection;
+import database.DatabaseController;
 import database.MySQL;
 import modules.ICustomer;
 import readings.ReadingController;
@@ -35,7 +36,7 @@ public class Main {
 
         DatabaseConnection databaseConnection = new DatabaseConnection();
         databaseConnection.createAllTables();
-        databaseConnection.executeSqlFile("tables/customers.sql");
+        //databaseConnection.executeSqlFile("tables/customers.sql");
 
         // Initialisiere den HTTP-Server
         HttpServer server = HttpServer.create(new InetSocketAddress(42069), 0);
@@ -46,6 +47,7 @@ public class Main {
         // CustomerController initialisieren
         new CustomerController(server, customerService);
         new ReadingController(server, readingService);
+        new DatabaseController(server);
 
         // Server starten
         server.setExecutor(null); // Default executor
