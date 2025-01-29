@@ -4,7 +4,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
-import java.io.OutputStream;
+
+import static util.ResponseUtil.sendResponse;
 
 public class DatabaseController {
     // Konstruktor
@@ -30,13 +31,6 @@ public class DatabaseController {
         } catch (Exception e) {
             e.printStackTrace();
             sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
-        }
-    }
-    // Hilfsmethode: HTTP-Antwort senden
-    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
-        exchange.sendResponseHeaders(statusCode, response.getBytes().length);
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes());
         }
     }
 }

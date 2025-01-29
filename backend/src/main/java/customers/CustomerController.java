@@ -14,6 +14,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static util.ResponseUtil.sendResponse;
+
 public class CustomerController {
     private final CustomerService customerService;
 
@@ -38,17 +40,17 @@ public class CustomerController {
             action.execute(exchange);
         } catch (JSONException e) {
             // 400 Bad Request falls JSON-Format fehlerhaft
-            ResponseUtil.sendResponse(exchange, 400, "JSON-Format fehlerhaft: " + e.getMessage());
+            sendResponse(exchange, 400, "JSON-Format fehlerhaft: " + e.getMessage());
         } catch (IllegalArgumentException e) {
             // 400 Bad Request für fehlerhafte Anfragen
-            ResponseUtil.sendResponse(exchange, 400, e.getMessage());
+            sendResponse(exchange, 400, e.getMessage());
         } catch (CustomerNotFoundException e) {
             // 404 Not Found für fehlende Kunden
-            ResponseUtil.sendResponse(exchange, 404, e.getMessage());
+            sendResponse(exchange, 404, e.getMessage());
         } catch (Exception e) {
             // 500 Internal Server Error für alles andere
             e.printStackTrace();
-            ResponseUtil.sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
+            sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
         }
     }
 
@@ -58,7 +60,7 @@ public class CustomerController {
     void handleGetCustomer(HttpExchange exchange) throws IOException {
         handleRequest(exchange, ex -> {
             if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) {
-                ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
+                sendResponse(ex, 405, "Methode nicht erlaubt");
                 return;
             }
 
@@ -82,7 +84,7 @@ public class CustomerController {
             customerJson.put("birthDate", customer.getBirthDate().toString());
             customerJson.put("gender", customer.getGender().name());
 
-            ResponseUtil.sendResponse(ex, 200, customerJson.toString());
+            sendResponse(ex, 200, customerJson.toString());
         });
     }
 
@@ -93,7 +95,7 @@ public class CustomerController {
     private void handleGetAllCustomers(HttpExchange exchange) throws IOException {
         handleRequest(exchange, ex -> {
             if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) {
-                ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
+                sendResponse(ex, 405, "Methode nicht erlaubt");
                 return;
             }
 
@@ -111,7 +113,7 @@ public class CustomerController {
                 jsonResponse.put(customerJson);
             }
 
-            ResponseUtil.sendResponse(ex, 200, jsonResponse.toString());
+            sendResponse(ex, 200, jsonResponse.toString());
         });
     }
 
@@ -119,7 +121,7 @@ public class CustomerController {
     private void handleCreateCustomer(HttpExchange exchange) throws IOException {
         handleRequest(exchange, ex -> {
             if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
-                ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
+                sendResponse(ex, 405, "Methode nicht erlaubt");
                 return;
             }
 
@@ -130,7 +132,7 @@ public class CustomerController {
 
                 String responseMessage = customerService.createCustomer(customer);
 
-                ResponseUtil.sendResponse(ex, 201, responseMessage);
+                sendResponse(ex, 201, responseMessage);
 
 
         });
@@ -152,7 +154,7 @@ public class CustomerController {
 
                 String responseMessage = customerService.updateCustomer(customer);
 
-            ResponseUtil.sendResponse(ex, 200, responseMessage);
+            sendResponse(ex, 200, responseMessage);
 
         });
 }
@@ -161,7 +163,7 @@ public class CustomerController {
     private void handleDeleteCustomer(HttpExchange exchange) throws IOException {
         handleRequest(exchange, ex -> {
             if (!"DELETE".equalsIgnoreCase(ex.getRequestMethod())) {
-                ResponseUtil.sendResponse(ex, 405, "Methode nicht erlaubt");
+                sendResponse(ex, 405, "Methode nicht erlaubt");
                 return;
             }
 
@@ -176,7 +178,7 @@ public class CustomerController {
 
             String responseMessage = customerService.deleteCustomer(customerId.toString());
 
-            ResponseUtil.sendResponse(ex, 200, responseMessage);
+            sendResponse(ex, 200, responseMessage);
         });
     }
 
@@ -189,13 +191,5 @@ public class CustomerController {
         customer.setBirthDate(LocalDate.parse(json.getString("birthDate"))); // Konvertiere String zu LocalDate
         customer.setGender(Customer.Gender.valueOf(json.getString("gender").toUpperCase())); // Konvertiere String zu Enum
         return customer;
-    }
-
-    // Hilfsmethode: HTTP-Antwort senden
-    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
-        exchange.sendResponseHeaders(statusCode, response.getBytes().length);
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes());
-        }
     }
 }
