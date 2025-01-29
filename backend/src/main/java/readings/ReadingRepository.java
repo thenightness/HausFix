@@ -93,7 +93,12 @@ public class ReadingRepository {
         reading.setId(UUID.fromString(rs.getString("id")));
         reading.setMeterCount(rs.getDouble("meterCount"));
         reading.setDateOfReading(LocalDate.parse(rs.getString("dateOfReading")));
-        reading.setCustomer(CustomerRepository.getCustomer(UUID.fromString(rs.getString("customerId"))));
+        String customerIdStr = rs.getString("customerId");
+        if (customerIdStr != null && !customerIdStr.isEmpty()) {
+            reading.setCustomer(CustomerRepository.getCustomer(UUID.fromString(customerIdStr)));
+        } else {
+            reading.setCustomer(null); // Readings werden trotzdem rausgelesen auch wenn die customer ID null ist
+        }
         reading.setKindOfMeter(IReading.KindOfMeter.valueOf(rs.getString("kindOfMeter")));
         reading.setSubstitute(rs.getBoolean("substitute"));
         reading.setComment(rs.getString("comment") != null ? rs.getString("comment") : "");

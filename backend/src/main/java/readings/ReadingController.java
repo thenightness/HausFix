@@ -81,7 +81,11 @@ public class ReadingController {
 
           JSONObject readingJson = new JSONObject();
           readingJson.put("id", reading.getId().toString());
-          readingJson.put("customerId", reading.getCustomer().toString());
+          if (reading.getCustomer() == null || reading.getCustomer().getId() == null) {
+              readingJson.put("customerId", JSONObject.NULL);
+          } else {
+              readingJson.put("customerId", reading.getCustomer().getId().toString());
+          }
           readingJson.put("meterId", reading.getMeterId());
           readingJson.put("meterCount", reading.getMeterCount().toString());
           readingJson.put("dateOfReading", reading.getDateOfReading().toString());
@@ -96,6 +100,7 @@ public class ReadingController {
       });
   }
 
+
     private void handleGetAllReadings(HttpExchange exchange) throws IOException {
         handleRequest(exchange, ex -> {
             if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) {
@@ -109,7 +114,11 @@ public class ReadingController {
             for (Reading reading : readings) {
                 JSONObject readingJson = new JSONObject();
                 readingJson.put("id", reading.getId().toString());
-                readingJson.put("customerId", reading.getCustomer().getId().toString());
+                if (reading.getCustomer() == null || reading.getCustomer().getId() == null) {
+                    readingJson.put("customerId", JSONObject.NULL);
+                } else {
+                    readingJson.put("customerId", reading.getCustomer().getId().toString());
+                }
                 readingJson.put("meterId", reading.getMeterId());
                 readingJson.put("meterCount", reading.getMeterCount());
                 readingJson.put("dateOfReading", reading.getDateOfReading().toString());
@@ -151,7 +160,7 @@ public class ReadingController {
     private void handleUpdateReading(HttpExchange exchange) throws IOException {
         handleRequest(exchange, ex -> {
             if (!"PUT".equalsIgnoreCase(exchange.getRequestMethod())) {
-                sendResponse(exchange, 405, "Methode nicht erlaubt");
+                ResponseUtil.sendResponse(exchange, 405, "Methode nicht erlaubt");
             }
             String responseMessage = null;
 
