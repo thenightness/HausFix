@@ -1,13 +1,9 @@
 package readings;
 
-import customers.Customer;
-import customers.CustomerController;
 import customers.CustomerRepository;
-import customers.CustomerService;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import exceptions.CustomerNotFoundException;
 import exceptions.ReadingNotFoundException;
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -2,7 +2,6 @@ package readings;
 
 import customers.CustomerRepository;
 import database.MySQL;
-import exceptions.CustomerNotFoundException;
 import exceptions.ReadingNotFoundException;
 import modules.IReading;
 import java.sql.ResultSet;

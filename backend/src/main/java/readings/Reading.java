@@ -95,5 +95,4 @@ public class Reading implements IReading {
     public String printDateOfReading() {
         return null;
     }
-
 }

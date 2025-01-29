@@ -1,7 +1,5 @@
 package readings;
 
-import customers.Customer;
-import exceptions.CustomerNotFoundException;
 import exceptions.ReadingNotFoundException;
 
 import java.sql.SQLException;

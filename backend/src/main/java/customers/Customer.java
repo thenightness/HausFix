@@ -1,10 +1,8 @@
 package customers;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
-import database.MySQL;
 import modules.ICustomer;
 
 public class Customer implements ICustomer {
