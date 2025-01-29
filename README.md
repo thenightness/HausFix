@@ -5,8 +5,6 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-# HausFix
-3FA081 Gruppe C
 
 <!-- PROJECT LOGO -->
 
@@ -19,15 +17,6 @@
 
   <p align="center">
     3FA081 Gruppe C
-    <br />
-    <a href="https://github.com/thenightness/HausFix"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/thenightness/HausFix">View Demo</a>
-    &middot;
-    <a href="https://github.com/thenightness/HausFix/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
-    &middot;
-    <a href="https://github.com/thenightness/HausFix/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 
@@ -73,7 +62,6 @@ Beschreibung folgt
 
 
 ### Built With
-
 * [![Svelte][Svelte.dev]][Svelte-url]
 * [![MariaDB][mariadb.org]][mariadb-url]
 * [![Docker][Docker.com]][Docker-url]
@@ -92,16 +80,19 @@ Um eine lokale Kopie zum Laufen zu bringen, befolgen Sie den folgenden Schritten
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
+Zur Verwendung der Software werden folgende Programme benötigt
+* Docker
   ```sh
-  npm install npm@latest -g
+  start /w "" "Docker Desktop Installer.exe" install
+  ```
+* Maven [Download ins Java Directory](https://maven.apache.org/download.cgi)
+  ```sh
+  
   ```
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1Clone the repo
    ```sh
    git clone https://github.com/thenightness/HausFix.git
    ```
