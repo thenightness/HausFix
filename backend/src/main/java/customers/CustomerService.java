@@ -1,6 +1,7 @@
 package customers;
 
 import exceptions.CustomerNotFoundException;
+import exceptions.DuplicateUUIDException;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -44,6 +45,10 @@ public class CustomerService {
             if (customer.getId() == null) {
                 customer.setId(UUID.randomUUID());
             }
+
+            if (customerRepository.getCustomer(customer.getId()) != null) {
+                throw new DuplicateUUIDException("Customer mit ID " + customer.getId() + " existiert bereits.");
+            }
             customerRepository.createCustomer(customer);
             return "Kunde mit ID " + customer.getId() + " erfolgreich erstellt";
         } catch (SQLException e) {
@@ -85,6 +90,26 @@ public class CustomerService {
             throw new IllegalArgumentException("Invalid UUID format for ID: " + id, e);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to delete customer with ID: " + id, e);
+        }
+    }
+
+    private static void validateCustomerFields(Customer customer) {
+        validateFieldsNotNull(customer.getId(), customer.getFirstName(), customer.getLastName(), customer.getBirthDate(), customer.getGender());
+
+        if (customer.getLastName().trim().isEmpty() || customer.getFirstName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Customer firstName and lastName dürfen nicht leer oder null sein");
+        }
+
+        if (!customer.getFirstName().matches("[\\p{L} .'-]+") || !customer.getLastName().matches("[\\p{L} .'-]+")) {
+            throw new IllegalArgumentException("Ungültige Engabe für firstName und/oder lastName");
+        }
+    }
+
+    private static void validateFieldsNotNull(Object... fields) {
+        for (Object field : fields) {
+            if (field == null) {
+                throw new IllegalArgumentException("Fields cannot be null.");
+            }
         }
     }
 
