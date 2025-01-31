@@ -2,35 +2,21 @@ package database;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.Path;
+import readings.Reading;
 
 import java.io.IOException;
 
 import static util.ResponseUtil.sendResponse;
-
+@Path("setupDB")
 public class DatabaseController {
-    // Konstruktor
-    public DatabaseController(HttpServer server) {
-        // Endpoint registrieren
-        server.createContext("/setupDB", this::handleSetupDB);
-    }
 
-    // DELETE /setupDB
-    private void handleSetupDB(HttpExchange exchange) throws IOException {
-        if (!"DELETE".equalsIgnoreCase(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "Method Not Allowed");
-            return;
-        }
-
-        try {
-            DatabaseConnection databaseConnection = new DatabaseConnection();
-            databaseConnection.removeAllTables();
-            databaseConnection.createAllTables();
-
-            // Erfolgreiche Antwort
-            sendResponse(exchange, 200, "DB erfolgreich zurückgesetzt!");
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(exchange, 500, "Interner Serverfehler: " + e.getMessage());
-        }
+    @DELETE
+    public String handleSetupDB() {
+        DatabaseConnection databaseConnection = new DatabaseConnection();
+        databaseConnection.removeAllTables();
+        databaseConnection.createAllTables();
+        return "DB erfolgreich zurückgesetzt!";
     }
 }

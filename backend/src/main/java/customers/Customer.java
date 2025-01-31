@@ -1,14 +1,16 @@
 package customers;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import modules.ICustomer;
+
 import java.time.LocalDate;
 import java.util.UUID;
-
-import modules.ICustomer;
 
 public class Customer implements ICustomer {
     private UUID id;
     private String firstName;
     private String lastName;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
     private Gender gender;
 

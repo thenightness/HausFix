@@ -4,8 +4,8 @@ import java.util.UUID;
 
 public interface IId {
 
-   UUID getId();
+    UUID getId();
 
-   void setId(UUID id);
+    void setId(UUID id);
 
 }
