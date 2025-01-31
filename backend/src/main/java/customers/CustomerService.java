@@ -1,115 +1,74 @@
 package customers;
 
-import exceptions.CustomerNotFoundException;
-import exceptions.DuplicateUUIDException;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotFoundException;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
 public class CustomerService {
-    private final CustomerRepository customerRepository;
-
-    public CustomerService() {
-        this.customerRepository = new CustomerRepository();
-    }
-
     public Customer getCustomer(UUID id) {
         if (id == null) {
-            throw new IllegalArgumentException("Customer ID cannot be null");
+            throw new NotFoundException("Customer ID cannot be null");
         }
 
         try {
-            Customer customer = customerRepository.getCustomer(id);
+            Customer customer = CustomerRepository.getCustomer(id);
             if (customer == null) {
-                throw new CustomerNotFoundException("Customer with ID " + id + " not found");
+                throw new NotFoundException("Customer with ID " + id + " not found");
             }
             return customer;
         } catch (SQLException e) {
-            throw new RuntimeException("Error fetching customer with ID " + id, e);
+            throw new InternalServerErrorException("Error fetching customer with ID " + id, e);
         }
     }
-
 
 
     public List<Customer> getAllCustomers() {
         try {
-            return customerRepository.getAllCustomers();
+            return CustomerRepository.getAllCustomers();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to fetch customers: ", e);
+            throw new InternalServerErrorException("Failed to fetch customers: ", e);
         }
     }
 
-    public String createCustomer(Customer customer) {
+    public void createCustomer(Customer customer) {
         try {
             if (customer.getId() == null) {
                 customer.setId(UUID.randomUUID());
             }
-
-            if (customerRepository.getCustomer(customer.getId()) != null) {
-                throw new DuplicateUUIDException("Customer mit ID " + customer.getId() + " existiert bereits.");
-            }
-            customerRepository.createCustomer(customer);
-            return "Kunde mit ID " + customer.getId() + " erfolgreich erstellt";
+            CustomerRepository.createCustomer(customer);
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to create customer: ", e);
-        }catch (IllegalArgumentException e) {
-            throw new RuntimeException("Customer ID darf nicht null sein", e);
+            throw new InternalServerErrorException("Failed to create customer: ", e);
         }
     }
 
     public String updateCustomer(Customer customer) {
         if (customer.getId() == null) {
-            throw new IllegalArgumentException("Customer ID darf nicht null sein");
+            throw new NotFoundException("Customer ID darf nicht null sein");
         }
         try {
-            customerRepository.updateCustomer(customer);
+            CustomerRepository.updateCustomer(customer);
             return "Kunde mit ID " + customer.getId() + " erfolgreich geupdatet";
-        } catch (CustomerNotFoundException e) {
-            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Fehler beim Updaten vom Kunden: ", e);
+            throw new InternalServerErrorException("Fehler beim Updaten vom Kunden: ", e);
         }
     }
 
-    public String deleteCustomer(String id) {
+    public String deleteCustomer(UUID uuid) {
         try {
-            // Validate and convert the UUID
-            UUID uuid = UUID.fromString(id);
-
             // Attempt to delete the customer
-            boolean isDeleted = customerRepository.deleteCustomer(uuid);
+            boolean isDeleted = CustomerRepository.deleteCustomer(uuid);
 
             // Return success if deleted, otherwise throw an exception
             if (isDeleted) {
-                return "Kunde mit ID " + id + " erfolgreich gelöscht.";
+                return "Kunde mit ID " + uuid + " erfolgreich gelöscht.";
             } else {
-                throw new CustomerNotFoundException("Kunde mit ID " + id + " wurde nicht gefunden.");
+                throw new NotFoundException("Kunde mit ID " + uuid + " wurde nicht gefunden.");
             }
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid UUID format for ID: " + id, e);
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to delete customer with ID: " + id, e);
-        }
-    }
-
-    private static void validateCustomerFields(Customer customer) {
-        validateFieldsNotNull(customer.getId(), customer.getFirstName(), customer.getLastName(), customer.getBirthDate(), customer.getGender());
-
-        if (customer.getLastName().trim().isEmpty() || customer.getFirstName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Customer firstName and lastName dürfen nicht leer oder null sein");
-        }
-
-        if (!customer.getFirstName().matches("[\\p{L} .'-]+") || !customer.getLastName().matches("[\\p{L} .'-]+")) {
-            throw new IllegalArgumentException("Ungültige Engabe für firstName und/oder lastName");
-        }
-    }
-
-    private static void validateFieldsNotNull(Object... fields) {
-        for (Object field : fields) {
-            if (field == null) {
-                throw new IllegalArgumentException("Fields cannot be null.");
-            }
+            throw new InternalServerErrorException("Failed to delete customer with ID: " + uuid, e);
         }
     }
 

@@ -12,19 +12,15 @@ public class DatabaseConnection implements IDatabaseConnection {
 
     @Override
     public void truncateTables() {
-        MySQL.executeStatement("SET FOREIGN_KEY_CHECKS = 0;", null);
-        MySQL.executeStatement("TRUNCATE TABLE customers;", null);
         MySQL.executeStatement("TRUNCATE TABLE readings;", null);
-        MySQL.executeStatement("SET FOREIGN_KEY_CHECKS = 1;", null);
+        MySQL.executeStatement("TRUNCATE TABLE customers;", null);
         System.out.println("Tabellen erfolgreich geleert!");
     }
 
     @Override
     public void removeAllTables() {
-        MySQL.executeStatement("SET FOREIGN_KEY_CHECKS = 0;", null);
-        MySQL.executeStatement("DROP TABLE IF EXISTS customers;", null);
         MySQL.executeStatement("DROP TABLE IF EXISTS readings;", null);
-        MySQL.executeStatement("SET FOREIGN_KEY_CHECKS = 1;", null);
+        MySQL.executeStatement("DROP TABLE IF EXISTS customers;", null);
         System.out.println("Tabellen erfolgreich gelöscht!");
     }
 

@@ -2,8 +2,9 @@ package readings;
 
 import customers.CustomerRepository;
 import database.MySQL;
-import exceptions.ReadingNotFoundException;
+import jakarta.ws.rs.NotFoundException;
 import modules.IReading;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -62,7 +63,7 @@ public class ReadingRepository {
                 reading.getId().toString()
         ));
         if (rowsAffected == 0) {
-            throw new ReadingNotFoundException("Kein Reading mit ID: " + reading.getId());
+            throw new NotFoundException("Kein Reading mit ID: " + reading.getId());
         }
     }
 
