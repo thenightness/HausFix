@@ -6,10 +6,8 @@ import exceptions.CustomerNotFoundException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import util.ResponseUtil;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;

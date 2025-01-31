@@ -1,21 +1,15 @@
 import com.sun.net.httpserver.HttpServer;
-import customers.Customer;
 import customers.CustomerController;
-import customers.CustomerRepository;
 import customers.CustomerService;
 import database.DatabaseConnection;
 import database.DatabaseController;
 import database.MySQL;
-import modules.ICustomer;
 import readings.ReadingController;
 import readings.ReadingService;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException, SQLException, IOException {

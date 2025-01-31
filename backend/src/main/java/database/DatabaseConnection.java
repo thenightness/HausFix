@@ -2,13 +2,6 @@ package database;
 
 import modules.IDatabaseConnection;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 public class DatabaseConnection implements IDatabaseConnection {
     @Override
     public void createAllTables() {
@@ -38,30 +31,5 @@ public class DatabaseConnection implements IDatabaseConnection {
     @Override
     public void closeConnection() {
         MySQL.disconnect();
-    }
-
-    // Ausführen von SQL-Befehlen aus einer Datei
-    public void executeSqlFile(String relativePath) {
-        try {
-            // Lade die SQL-Datei über den Klassenpfad
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(relativePath);
-            if (inputStream == null) {
-                throw new RuntimeException("SQL-Datei nicht gefunden: " + relativePath);
-            }
-
-            // Lies den Inhalt der Datei
-            String sql = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-
-            // Führe die SQL-Befehle aus
-            Connection connection = MySQL.getInstance().getConnection();
-            Statement statement = connection.createStatement();
-            statement.execute(sql);
-
-            System.out.println("SQL-Datei erfolgreich ausgeführt: " + relativePath);
-        } catch (IOException e) {
-            System.err.println("Fehler beim Lesen der SQL-Datei: " + relativePath + " - " + e.getMessage());
-        } catch (SQLException e) {
-            System.err.println("SQL-Fehler: " + e.getMessage());
-        }
     }
 }

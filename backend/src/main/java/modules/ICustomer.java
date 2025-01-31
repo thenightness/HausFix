@@ -8,7 +8,7 @@ public interface ICustomer extends IId {
       D, // divers
       M, // männlich
       U, // unbekannt
-      W; // weiblich
+      W  // weiblich
    }
 
    String getFirstName();
