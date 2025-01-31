@@ -1,7 +1,12 @@
 package readings;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import modules.ICustomer;
 import modules.IReading;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -9,7 +14,10 @@ public class Reading implements IReading {
 
     private UUID id;
     private String comment;
+    @JsonProperty("customerId")
+    @JsonDeserialize(using = CustomerDeserializer.class)
     private ICustomer customer;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfReading;
     private KindOfMeter kindOfMeter;
     private Double meterCount;
@@ -17,10 +25,14 @@ public class Reading implements IReading {
     private Boolean substitute;
 
     @Override
-    public UUID getId() { return id; }
+    public UUID getId() {
+        return id;
+    }
 
     @Override
-    public void setId(UUID id) { this.id = id; }
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
     @Override
     public String getComment() {
@@ -28,19 +40,29 @@ public class Reading implements IReading {
     }
 
     @Override
-    public void setComment(String comment) { this.comment = comment; }
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
     @Override
-    public ICustomer getCustomer() { return customer; }
+    public ICustomer getCustomer() {
+        return customer;
+    }
 
     @Override
-    public void setCustomer(ICustomer customer) { this.customer = customer;   }
+    public void setCustomer(ICustomer customer) {
+        this.customer = customer;
+    }
 
     @Override
-    public LocalDate getDateOfReading() {return dateOfReading;    }
+    public LocalDate getDateOfReading() {
+        return dateOfReading;
+    }
 
     @Override
-    public void setDateOfReading(LocalDate dateOfReading) { this.dateOfReading = dateOfReading;   }
+    public void setDateOfReading(LocalDate dateOfReading) {
+        this.dateOfReading = dateOfReading;
+    }
 
     @Override
     public KindOfMeter getKindOfMeter() {
@@ -48,7 +70,9 @@ public class Reading implements IReading {
     }
 
     @Override
-    public void setKindOfMeter(KindOfMeter kindOfMeter) { this.kindOfMeter = kindOfMeter;   }
+    public void setKindOfMeter(KindOfMeter kindOfMeter) {
+        this.kindOfMeter = kindOfMeter;
+    }
 
     @Override
     public Double getMeterCount() {
@@ -56,7 +80,9 @@ public class Reading implements IReading {
     }
 
     @Override
-    public void setMeterCount(Double meterCount) { this.meterCount = meterCount;   }
+    public void setMeterCount(Double meterCount) {
+        this.meterCount = meterCount;
+    }
 
     @Override
     public String getMeterId() {
@@ -64,7 +90,9 @@ public class Reading implements IReading {
     }
 
     @Override
-    public void setMeterId(String meterId) { this.meterId = meterId;   }
+    public void setMeterId(String meterId) {
+        this.meterId = meterId;
+    }
 
     @Override
     public Boolean getSubstitute() {

@@ -1,27 +1,17 @@
 package customers;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import modules.ICustomer;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import database.MySQL;
-import modules.ICustomer;
-
 public class Customer implements ICustomer {
-    @JsonProperty("id")
     private UUID id;
-    @JsonProperty("firstName")
     private String firstName;
-
-    @JsonProperty("lastName")
     private String lastName;
-
-    @JsonProperty("brithDate")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
-
-    @JsonProperty("gender")
     private Gender gender;
 
     @Override

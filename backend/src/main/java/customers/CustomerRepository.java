@@ -1,11 +1,17 @@
 package customers;
 
-import java.sql.*;
-import java.time.LocalDate;
-import java.util.*;
 import database.MySQL;
-import exceptions.CustomerNotFoundException;
+import jakarta.ws.rs.NotFoundException;
 import modules.ICustomer;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class CustomerRepository {
 
@@ -55,8 +61,6 @@ public class CustomerRepository {
     }
 
 
-
-
     // Aktualisiert einen bestehenden Kunden
     public static void updateCustomer(Customer customer) throws SQLException {
         String query = "UPDATE customers SET firstName = ?, lastName = ?, birthDate = ?, gender = ? WHERE id = ?";
@@ -68,7 +72,7 @@ public class CustomerRepository {
                 customer.getId().toString()
         ));
         if (rowsAffected == 0) {
-            throw new CustomerNotFoundException("Kein Kunde mit ID: " + customer.getId());
+            throw new NotFoundException("Kein Kunde mit ID: " + customer.getId());
         }
     }
 
