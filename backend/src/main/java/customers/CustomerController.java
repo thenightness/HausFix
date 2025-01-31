@@ -1,5 +1,6 @@
 package customers;
-
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import exceptions.CustomerNotFoundException;
@@ -86,12 +87,17 @@ public class CustomerController {
             customerJson.put("birthDate", customer.getBirthDate().toString());
             customerJson.put("gender", customer.getGender().name());
 
-            sendResponse(ex, 200, customerJson.toString());
+            CustomerWrapper customerWrapper = new CustomerWrapper();
+            customerWrapper.setCustomer(customer);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+
+            String jsonOutput = objectMapper.writeValueAsString(customerWrapper);
+
+            sendResponse(ex, 200, jsonOutput);
         });
     }
-
-
-
 
     // GET /customer/selectAll
     private void handleGetAllCustomers(HttpExchange exchange) throws IOException {
