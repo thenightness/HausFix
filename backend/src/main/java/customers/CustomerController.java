@@ -1,5 +1,6 @@
 package customers;
-
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.json.JSONArray;
@@ -60,7 +61,16 @@ public class CustomerController {
             customerJson.put("birthDate", customer.getBirthDate().toString());
             customerJson.put("gender", customer.getGender().name());
 
-            sendResponse(exchange, 200, customerJson.toString());
+            CustomerWrapper customerWrapper = new CustomerWrapper();
+            customerWrapper.setCustomer(customer);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+
+            String jsonOutput = objectMapper.writeValueAsString(customerWrapper);
+
+            System.out.println(customerJson.toString());
+            sendResponse(exchange, 200,jsonOutput);
         } catch (IllegalArgumentException e) {
             sendResponse(exchange, 400, "Ungültige UUID: " + e.getMessage());
         } catch (Exception e) {
