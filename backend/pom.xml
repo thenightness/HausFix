@@ -60,7 +60,7 @@
             <version>${maven.surefire.plugin.version}</version>
         </dependency>
 
-        <!-- Plugin zur UUID Gennerierung -->
+        <!-- Plugin zur UUID Generierung -->
         <dependency>
             <groupId>com.fasterxml.uuid</groupId>
             <artifactId>java-uuid-generator</artifactId>

@@ -1,11 +1,11 @@
 package modules;
 
 public interface IDatabaseConnection {
-    public void createAllTables();
+    void createAllTables();
 
-    public void truncateTables();
+    void truncateTables();
 
-    public void removeAllTables();
+    void removeAllTables();
 
-    public void closeConnection();
+    void closeConnection();
 }

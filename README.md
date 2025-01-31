@@ -11,7 +11,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/thenightness/HausFix">
-    <img src="backend/src/images/logo.png" alt="Logo" width="200" height="200">
+    <img src="images/logo.png" alt="Logo" width="200" height="200">
   </a>
 <h1 align="center">HausFix</h1>
 
@@ -63,7 +63,7 @@ Beschreibung folgt
 
 ### Built With
 * [![Svelte][Svelte.dev]][Svelte-url]
-* [![MariaDB][mariadb.org]][mariadb-url]
+* [![MariaDB][Mariadb.org]][Mariadb-url]
 * [![Docker][Docker.com]][Docker-url]
 * [![Java][Java.com]][Java-url]
 * [![Maven][Maven.Apache.org]][Maven-url]
@@ -92,19 +92,19 @@ Zur Verwendung der Software werden folgende Programme benötigt
 
 ### Installation
 
-1Clone the repo
+1. Clone the repo
    ```sh
    git clone https://github.com/thenightness/HausFix.git
    ```
-3. Install NPM packages
+2. Install NPM packages
    ```sh
    npm install
    ```
-4. Enter your API in `config.js`
+3. Enter your API in `config.js`
    ```js
    const API_KEY = 'ENTER YOUR API';
    ```
-5. Change git remote url to avoid accidental pushes to base project
+4. Change git remote url to avoid accidental pushes to base project
    ```sh
    git remote set-url origin thenightness/HausFix
    git remote -v # confirm the changes
