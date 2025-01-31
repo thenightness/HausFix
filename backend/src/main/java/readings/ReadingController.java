@@ -4,6 +4,7 @@ import customers.CustomerRepository;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import exceptions.DuplicateUUIDException;
 import exceptions.ReadingNotFoundException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,17 +42,20 @@ public class ReadingController {
             action.execute(exchange);
         } catch (JSONException e) {
             // 400 Bad Request falls JSON-Format fehlerhaft
-            ResponseUtil.sendResponse(exchange, 400, "JSON-Format fehlerhaft: " + e.getMessage());
+            sendResponse(exchange, 400, "JSON-Format fehlerhaft: " + e.getMessage());
         } catch (IllegalArgumentException e) {
             // 400 Bad Request für fehlerhafte Anfragen
-            ResponseUtil.sendResponse(exchange, 400, e.getMessage());
+            sendResponse(exchange, 400, e.getMessage());
         } catch (ReadingNotFoundException e) {
             // 404 Not Found für fehlende Readings
-            ResponseUtil.sendResponse(exchange, 404, e.getMessage());
+            sendResponse(exchange, 404, e.getMessage());
+        } catch (DuplicateUUIDException e) {
+            // 409 Conflict für doppelte UUIDs
+            sendResponse(exchange, 409, e.getMessage());
         } catch (Exception e) {
             // 500 Internal Server Error für alles andere
             e.printStackTrace();
-            ResponseUtil.sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
+            sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
         }
     }
 

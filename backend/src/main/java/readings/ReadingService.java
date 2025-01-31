@@ -1,5 +1,6 @@
 package readings;
 
+import exceptions.DuplicateUUIDException;
 import exceptions.ReadingNotFoundException;
 
 import java.sql.SQLException;
@@ -33,7 +34,7 @@ public class ReadingService {
         try {
             return readingRepository.getAllReadings();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to fetch readings: ", e);
+            throw new RuntimeException("Readings konnten nicht gefetcht werden: ", e);
         }
     }
 
@@ -42,10 +43,14 @@ public class ReadingService {
             if (reading.getId() == null) {
                 reading.setId(UUID.randomUUID());
             }
+
+            if (readingRepository.getReading(reading.getId()) != null) {
+                throw new DuplicateUUIDException("Reading mit ID " + reading.getId() + " existiert bereits.");
+            }
             readingRepository.createReading(reading);
             return "Reading mit ID " + reading.getId() + " erfolgreich erstellt";
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to create reading: ", e);
+            throw new RuntimeException("Fehler beim Erstellen von der Reading: ", e);
         }
     }
 
@@ -77,9 +82,34 @@ public class ReadingService {
                 throw new ReadingNotFoundException("Reading mit ID " + id + " wurde nicht gefunden.");
             }
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid UUID format for ID: " + id, e);
+            throw new IllegalArgumentException("Ungültige UUID-Format für ID: " + id, e);
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to delete reading with ID: " + id, e);
+            throw new RuntimeException("Fehler beim Löschen von der Reading mit ID: " + id, e);
+        }
+    }
+
+    private static void validateReadingFields(Reading reading) {
+        validateFieldsNotNull(reading.getId(), reading.getDateOfReading(), reading.getMeterCount(), reading.getMeterId(), reading.getKindOfMeter(), reading.getSubstitute());
+
+        if (reading.getMeterCount() < 0) {
+            throw new IllegalArgumentException("MeterCount nur ab 0 gültig.");
+        }
+
+        if (!reading.getMeterId().matches("[a-zA-Z0-9-]+")) {
+            throw new IllegalArgumentException("meterId darf nur Buchstaben, Zahlen und Bindestriche enthalten.");
+        }
+
+        if (reading.getCustomer() != null && reading.getCustomer().getId() == null) {
+            throw new IllegalArgumentException("Customer must have a valid ID.");
+        }
+    }
+
+
+    private static void validateFieldsNotNull(Object... fields) {
+        for (Object field : fields) {
+            if (field == null) {
+                throw new IllegalArgumentException("Fields cannot be null.");
+            }
         }
     }
 }

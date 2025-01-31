@@ -3,6 +3,7 @@ package customers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import exceptions.CustomerNotFoundException;
+import exceptions.DuplicateUUIDException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,6 +46,9 @@ public class CustomerController {
         } catch (CustomerNotFoundException e) {
             // 404 Not Found für fehlende Kunden
             sendResponse(exchange, 404, e.getMessage());
+        } catch (DuplicateUUIDException e) {
+            // 409 Conflict für doppelte UUIDs
+            sendResponse(exchange, 409, e.getMessage());
         } catch (Exception e) {
             // 500 Internal Server Error für alles andere
             e.printStackTrace();
