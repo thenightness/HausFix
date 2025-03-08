@@ -73,12 +73,17 @@ public class MySQL {
         }
     }
 
-    public static ResultSet executeSelect(String query, List<Object> parameters) throws SQLException {
-        PreparedStatement p = instance.connection.prepareStatement(query);
-        for (int i = 0; i < parameters.size(); i++) {
-            p.setObject(i + 1, parameters.get(i));
+    public static ResultSet executeSelect(String query, List<Object> parameters) {
+        try {
+            PreparedStatement p = instance.connection.prepareStatement(query);
+            for (int i = 0; i < parameters.size(); i++) {
+                p.setObject(i + 1, parameters.get(i));
+            }
+            return p.executeQuery(); // Gib das ResultSet zurück, ohne es sofort zu schließen
+        } catch (SQLException e){
+            e.printStackTrace();
+            return null;
         }
-        return p.executeQuery(); // Gib das ResultSet zurück, ohne es sofort zu schließen
     }
 
     public static ResultSet executeSelect(String query) {
