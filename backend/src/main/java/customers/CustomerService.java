@@ -24,7 +24,6 @@ public class CustomerService {
         }
     }
 
-
     public List<Customer> getAllCustomers() {
         try {
             return CustomerRepository.getAllCustomers();
@@ -48,12 +47,8 @@ public class CustomerService {
         if (customer.getId() == null) {
             throw new NotFoundException("Customer ID darf nicht null sein");
         }
-        try {
-            CustomerRepository.updateCustomer(customer);
-            return "Kunde mit ID " + customer.getId() + " erfolgreich geupdatet";
-        } catch (Exception e) {
-            throw new InternalServerErrorException("Fehler beim Updaten vom Kunden: ", e);
-        }
+        CustomerRepository.updateCustomer(customer);
+        return "Kunde mit ID " + customer.getId() + " erfolgreich geupdatet";
     }
 
     public String deleteCustomer(UUID uuid) {
@@ -71,7 +66,6 @@ public class CustomerService {
             throw new InternalServerErrorException("Failed to delete customer with ID: " + uuid, e);
         }
     }
-
 }
 
 

@@ -8,6 +8,8 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import readings.ReadingController;
 import readings.ReadingService;
 import util.JacksonConfig;
@@ -168,4 +170,7 @@ public class Main {
         //Temporär damit Backend-Container nicht unnötig neugestartet wird
         currentThread().join();
     }
+
+    public static final Logger logger
+            = LoggerFactory.getLogger(Main.class);
 }

@@ -3,6 +3,8 @@ package customers;
 import database.MySQL;
 import jakarta.ws.rs.NotFoundException;
 import modules.ICustomer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,35 +36,18 @@ public class CustomerRepository {
         }
 
         String query = "SELECT * FROM customers WHERE id = ?";
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+        ResultSet resultSet = MySQL.executeSelect(query, List.of(id.toString()));
 
-        try {
-            connection = MySQL.getConnection();
-            statement = connection.prepareStatement(query);
-            statement.setString(1, id.toString());
-            resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                return mapResultSetToCustomer(resultSet);
-            }
-        } finally {
-            if (resultSet != null) {
-                resultSet.close(); // Nur das ResultSet schließen
-            }
-            if (statement != null) {
-                statement.close(); // Statement schließen
-            }
-            // Die Verbindung bleibt offen für weitere Nutzung
+        if (resultSet != null && resultSet.next()) {
+            return mapResultSetToCustomer(resultSet);
+        } else {
+            return null;
         }
-
-        return null; // Kein Kunde gefunden
     }
 
 
     // Aktualisiert einen bestehenden Kunden
-    public static void updateCustomer(Customer customer) throws SQLException {
+    public static void updateCustomer(Customer customer) {
         String query = "UPDATE customers SET firstName = ?, lastName = ?, birthDate = ?, gender = ? WHERE id = ?";
         int rowsAffected = MySQL.executeStatement(query, List.of(
                 customer.getFirstName(),

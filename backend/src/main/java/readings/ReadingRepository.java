@@ -77,17 +77,6 @@ public class ReadingRepository {
         return MySQL.executeStatement(query, List.of(id.toString())) > 0;
     }
 
-    // Get All - Hole alle Readings
-    public static List<Reading> getAllReadings() throws SQLException {
-        String query = "SELECT * FROM readings";
-        ResultSet rs = MySQL.executeSelect(query);
-        List<Reading> readings = new ArrayList<>();
-        while (rs.next()) {
-            readings.add(mapResultSetToReading(rs));
-        }
-        return readings;
-    }
-
     private static Reading mapResultSetToReading(ResultSet rs) throws SQLException {
         Reading reading = new Reading();
         reading.setId(UUID.fromString(rs.getString("id")));

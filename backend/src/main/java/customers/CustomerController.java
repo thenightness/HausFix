@@ -12,19 +12,6 @@ import java.util.UUID;
 public class CustomerController {
     public static CustomerService customerService;
 
-    @GET
-    @Path("/{uuid}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Customer handleGetCustomer(@PathParam("uuid") UUID uuid) {
-        return customerService.getCustomer(uuid);
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<Customer> handleGetAllCustomers() {
-        return customerService.getAllCustomers();
-    }
-
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -38,6 +25,19 @@ public class CustomerController {
     @Produces(MediaType.TEXT_PLAIN)
     public String handleUpdateCustomer(Customer customer) {
         return customerService.updateCustomer(customer);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Customer> handleGetAllCustomers() {
+        return customerService.getAllCustomers();
+    }
+
+    @GET
+    @Path("/{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Customer handleGetCustomer(@PathParam("uuid") UUID uuid) {
+        return customerService.getCustomer(uuid);
     }
 
     @DELETE

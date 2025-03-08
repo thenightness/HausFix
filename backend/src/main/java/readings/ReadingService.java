@@ -25,14 +25,6 @@ public class ReadingService {
         }
     }
 
-    public List<Reading> getAllReadings() {
-        try {
-            return ReadingRepository.getAllReadings();
-        } catch (SQLException e) {
-            throw new InternalServerErrorException("Failed to fetch readings: ", e);
-        }
-    }
-
     public void createReading(Reading reading) {
         try {
             if (reading.getId() == null) {
