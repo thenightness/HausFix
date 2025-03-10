@@ -4,6 +4,7 @@ import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,6 +66,17 @@ public class ReadingService {
             throw new InternalServerErrorException("Failed to delete reading with ID: " + id, e);
         }
     }
+
+    public List<Reading> getFilteredReadings(String customerUuid, LocalDate start, LocalDate end, String kindOfMeter) throws SQLException {
+        if (customerUuid == null && start == null && end == null && kindOfMeter == null) {
+            // Falls keine Filter gesetzt sind, hole alle Readings
+            return readingRepository.getAllReadings();
+        } else {
+            // Falls Filter gesetzt sind, verwende die neue Methode
+            return readingRepository.findReadingsByFilters(customerUuid, start, end, kindOfMeter);
+        }
+    }
+
 }
 
 

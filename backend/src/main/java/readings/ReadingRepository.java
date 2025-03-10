@@ -2,13 +2,14 @@ package readings;
 
 import customers.CustomerRepository;
 import database.MySQL;
-import jakarta.ws.rs.NotFoundException;
+import exceptions.CustomerNotFoundException;
+import exceptions.ReadingNotFoundException;
 import modules.IReading;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,7 +64,7 @@ public class ReadingRepository {
                 reading.getId().toString()
         ));
         if (rowsAffected == 0) {
-            throw new NotFoundException("Kein Reading mit ID: " + reading.getId());
+            throw new ReadingNotFoundException("Kein Reading mit ID: " + reading.getId());
         }
     }
 
@@ -77,17 +78,54 @@ public class ReadingRepository {
         return MySQL.executeStatement(query, List.of(id.toString())) > 0;
     }
 
+    // Get All - Hole alle Readings
+    public static List<Reading> getAllReadings() throws SQLException {
+        String query = "SELECT * FROM readings";
+        ResultSet rs = MySQL.executeSelect(query);
+        List<Reading> readings = new ArrayList<>();
+        while (rs.next()) {
+            readings.add(mapResultSetToReading(rs));
+        }
+        return readings;
+    }
+
+    public List<Reading> findReadingsByFilters(String customerUuid, LocalDate start, LocalDate end, String kindOfMeter) throws SQLException {
+        String query = "SELECT * FROM readings WHERE 1=1";
+        List<Object> parameters = new ArrayList<>();
+
+        if (customerUuid != null) {
+            query += " AND customerId = ?";
+            parameters.add(UUID.fromString(customerUuid));
+        }
+        if (start != null) {
+            query += " AND date_of_reading >= ?";
+            parameters.add(java.sql.Date.valueOf(start));
+        }
+        if (end != null) {
+            query += " AND date_of_reading <= ?";
+            parameters.add(java.sql.Date.valueOf(end));
+        }
+        if (kindOfMeter != null) {
+            query += " AND kindOfMeter = ?";
+            parameters.add(kindOfMeter); // String bleibt gleich
+        }
+
+        ResultSet rs = MySQL.executeSelect(query, Arrays.asList(parameters.toArray()));
+        List<Reading> readings = new ArrayList<>();
+        while (rs.next()) {
+            readings.add(mapResultSetToReading(rs));
+        }
+        return readings;
+    }
+
+
+
     private static Reading mapResultSetToReading(ResultSet rs) throws SQLException {
         Reading reading = new Reading();
         reading.setId(UUID.fromString(rs.getString("id")));
         reading.setMeterCount(rs.getDouble("meterCount"));
         reading.setDateOfReading(LocalDate.parse(rs.getString("dateOfReading")));
-        String customerIdStr = rs.getString("customerId");
-        if (customerIdStr != null && !customerIdStr.isEmpty()) {
-            reading.setCustomer(CustomerRepository.getCustomer(UUID.fromString(customerIdStr)));
-        } else {
-            reading.setCustomer(null); // Readings werden trotzdem rausgelesen auch wenn die customer ID null ist
-        }
+        reading.setCustomer(CustomerRepository.getCustomer(UUID.fromString(rs.getString("customerId"))));
         reading.setKindOfMeter(IReading.KindOfMeter.valueOf(rs.getString("kindOfMeter")));
         reading.setSubstitute(rs.getBoolean("substitute"));
         reading.setComment(rs.getString("comment") != null ? rs.getString("comment") : "");

@@ -1,32 +1,21 @@
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.sun.net.httpserver.HttpServer;
 import customers.CustomerController;
 import customers.CustomerService;
 import database.DatabaseConnection;
 import database.MySQL;
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import readings.ReadingController;
 import readings.ReadingService;
-import util.JacksonConfig;
-
 import java.io.IOException;
-import java.net.URI;
+import java.net.InetSocketAddress;
 import java.sql.SQLException;
 
-import static java.lang.Thread.currentThread;
-
 public class Main {
-    public static void main(final String[] args) throws InterruptedException, SQLException, IOException {
+    public static void main(String[] args) throws InterruptedException, SQLException, IOException {
         System.out.println("Hello World!");
 
         //Initialisierung der Verbindung zur Datenbank
 
-        MySQL.init("mariadb", 3306, System.getenv("MYSQL_DATABASE"), System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
+        MySQL.init("mariadb", 3306, System.getenv("MYSQL_DATABASE"),System.getenv("MYSQL_USER"),System.getenv("MYSQL_PASSWORD"));
 
         System.out.println("Connection Successful!");
 
@@ -39,23 +28,8 @@ public class Main {
 
         DatabaseConnection databaseConnection = new DatabaseConnection();
         databaseConnection.createAllTables();
+        databaseConnection.executeSqlFile("tables/customers.sql");
 
-        final String pack = "rest";
-        String url = "http://0.0.0.0:42069";
-        System.out.println("Start server");
-        System.out.println(url);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        //final ResourceConfig rc = new ResourceConfig().packages(pack).register(AuthenticationFilter.class);
-        final ResourceConfig rc = new ResourceConfig().packages("customers", "readings", "database").register(JacksonFeature.class).register(JacksonConfig.class);
-        final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(url), rc);
-        System.out.println("Ready for Requests....");
-
-        CustomerController.customerService = new CustomerService();
-        ReadingController.readingService = new ReadingService();
-
-        /*
         // Initialisiere den HTTP-Server
         HttpServer server = HttpServer.create(new InetSocketAddress(42069), 0);
 
@@ -64,8 +38,9 @@ public class Main {
 
         // CustomerController initialisieren
         new CustomerController(server, customerService);
+
+        // ReadingController initialisieren
         new ReadingController(server, readingService);
-        new DatabaseController(server);
 
         // Server starten
         server.setExecutor(null); // Default executor
@@ -77,7 +52,7 @@ public class Main {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             MySQL.disconnect();
             System.out.println("Shutdown-Hook: Verbindung zur Datenbank geschlossen.");
-        }));*/
+        }));
 
 
         /*// CREATE
@@ -168,9 +143,9 @@ public class Main {
 
 
         //Temporär damit Backend-Container nicht unnötig neugestartet wird
-        currentThread().join();
-    }
+        while(true){
+            Thread.sleep(1000);
+        }
 
-    public static final Logger logger
-            = LoggerFactory.getLogger(Main.class);
+    }
 }

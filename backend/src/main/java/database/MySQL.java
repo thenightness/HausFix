@@ -25,6 +25,7 @@ public class MySQL {
         instance.connect();
     }
 
+
     public static boolean isConnected() {
         if (instance.connection != null) {
             try {
