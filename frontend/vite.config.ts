@@ -1,7 +1,18 @@
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { sveltekit } from '@sveltejs/kit/vite';
+import { defineConfig } from 'vite';
+import { enhancedImages } from '@sveltejs/enhanced-img';
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [svelte()],
-})
+	plugins: [sveltekit(), enhancedImages()],
+	server: {
+		port: 1420,
+		strictPort: true,
+		hmr: {
+			protocol: 'ws',
+			port: 1420
+		}
+	},
+	preview: {
+		port: 1420
+	}
+});
