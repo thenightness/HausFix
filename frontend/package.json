@@ -28,6 +28,8 @@
 	},
 	"dependencies": {
 		"@sveltejs/enhanced-img": "0.4.4",
-		"positron-components": "^1.0.1"
+		"node-watcher": "^0.0.4",
+		"positron-components": "^1.0.1",
+		"svelte-sonner": "^0.3.28"
 	}
 }
