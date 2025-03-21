@@ -2,7 +2,7 @@
     import Home from "@lucide/svelte/icons/house";
     import Customer from "@lucide/svelte/icons/book-user";
     import Reading from "@lucide/svelte/icons/table-properties";
-    import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+    import { Sidebar } from "positron-components/components/ui";
 
     const items = [
         {
