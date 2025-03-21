@@ -25,7 +25,7 @@
     
 <Sidebar.Root collapsible="icon">
     <Sidebar.Header class="group-data-[collapsible=icon]:hidden">
-        <Sidebar.Menu >
+        <Sidebar.Menu>
             <Sidebar.MenuItem>
                 <span>HausFix</span>
             </Sidebar.MenuItem>
@@ -40,7 +40,7 @@
                     <Sidebar.MenuButton>
                     {#snippet child({ props })}
                         <a href={item.url} {...props}>
-                        <item.icon />
+                        <item.icon/>
                         <span>{item.title}</span>
                         </a>
                     {/snippet}
