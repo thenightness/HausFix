@@ -1,0 +1,10 @@
+{
+  "workspaces": [
+    "frontend"
+  ],
+  "devDependencies": {
+    "prettier": "^3.5.3",
+    "prettier-plugin-svelte": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.11"
+  }
+}
