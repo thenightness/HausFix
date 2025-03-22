@@ -51,7 +51,7 @@
             </Sidebar.GroupContent>
         </Sidebar.Group>
         </Sidebar.Content>
-    <Sidebar.Footer>
-        <Sidebar.Trigger/>
+    <Sidebar.Footer class="flex">
+        <Sidebar.Trigger class="ml-auto"/> <!--Margin left auto-->
     </Sidebar.Footer>
 </Sidebar.Root>
