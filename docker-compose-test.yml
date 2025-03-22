@@ -1,16 +1,11 @@
 services:
   mariadb:
     image: "mariadb:latest"
-    volumes:
-      - "db_data:/var/lib/mysql"
-      - "db_config:/etc/mysql/conf.d"
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-    ports:
-      - "3306:3306"
     healthcheck:
       test: /usr/local/bin/healthcheck.sh --connect
       start_period: 20s
@@ -19,17 +14,19 @@ services:
       timeout: 5s
 
   backend:
-    build: ./backend
+    build:
+      dockerfile: backend/Test.Dockerfile
+      context: .
     environment:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-    ports:
-      - "42069:42069"
     depends_on:
       mariadb:
         condition: service_healthy
-
-volumes:
-  db_data:
-  db_config:
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/target:/app/target
+      - ./backend/pom.xml:/app/pom.xml
+      - ./.m2:/root/.m2
+    command: ["mvn", "test"]

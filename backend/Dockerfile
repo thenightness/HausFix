@@ -5,7 +5,7 @@ COPY pom.xml /usr/src/app
 # Maven-Dependencies werden gecached      Sagt wo die pom.xml liegt
 # clean: räumt auf
 # package: erstellt die .jar
-RUN --mount=type=cache,target=/root/.m2 mvn -f /usr/src/app/pom.xml clean package
+RUN --mount=type=cache,target=/root/.m2 mvn -f /usr/src/app/pom.xml clean package -Dmaven.test.skip
 
 
 FROM alpine/java:21-jre
