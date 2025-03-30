@@ -30,20 +30,6 @@ services:
       mariadb:
         condition: service_healthy
 
-  frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    volumes:
-      - ./frontend:/app/frontend
-      - ./node_modules:/app/node_modules
-      - ./package-lock.json:/app/package-lock.json
-      - ./package.json:/app/package.json
-    ports:
-      - "5173:5173"
-    tty: true
-    command: npm run dev -- --host
-
 volumes:
   db_data:
   db_config:
