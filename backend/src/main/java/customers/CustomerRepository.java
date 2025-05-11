@@ -3,11 +3,7 @@ package customers;
 import database.MySQL;
 import jakarta.ws.rs.NotFoundException;
 import modules.ICustomer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -45,6 +41,16 @@ public class CustomerRepository {
         }
     }
 
+    // Gibt alle Kunden aus der Datenbank zurück
+    public static List<Customer> getAllCustomers() throws SQLException {
+        String query = "SELECT * FROM customers";
+        ResultSet rs = MySQL.executeSelect(query);
+        List<Customer> customers = new ArrayList<>();
+        while (rs.next()) {
+            customers.add(mapResultSetToCustomer(rs));
+        }
+        return customers;
+    }
 
     // Aktualisiert einen bestehenden Kunden
     public static void updateCustomer(Customer customer) {
@@ -70,17 +76,6 @@ public class CustomerRepository {
         int rowsAffected = MySQL.executeStatement(query, List.of(id.toString()));
 
         return rowsAffected > 0;
-    }
-
-    // Gibt alle Kunden aus der Datenbank zurück
-    public static List<Customer> getAllCustomers() throws SQLException {
-        String query = "SELECT * FROM customers";
-        ResultSet rs = MySQL.executeSelect(query);
-        List<Customer> customers = new ArrayList<>();
-        while (rs.next()) {
-            customers.add(mapResultSetToCustomer(rs));
-        }
-        return customers;
     }
 
     // Hilfsmethode: Wandelt ein ResultSet in ein Customer-Objekt um

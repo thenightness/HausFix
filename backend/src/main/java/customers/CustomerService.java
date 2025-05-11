@@ -1,5 +1,6 @@
 package customers;
 
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
 
@@ -8,6 +9,22 @@ import java.util.List;
 import java.util.UUID;
 
 public class CustomerService {
+
+    public void createCustomer(Customer customer) {
+        try {
+            if (customer.getId() == null) {
+                customer.setId(UUID.randomUUID());
+            }
+            if (null == CustomerRepository.getCustomer(customer.getId())) {
+                CustomerRepository.createCustomer(customer);
+            } else {
+                throw new BadRequestException();
+            }
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to create customer: ", e);
+        }
+    }
+
     public Customer getCustomer(UUID id) {
         if (id == null) {
             throw new NotFoundException("Customer ID cannot be null");
@@ -29,17 +46,6 @@ public class CustomerService {
             return CustomerRepository.getAllCustomers();
         } catch (SQLException e) {
             throw new InternalServerErrorException("Failed to fetch customers: ", e);
-        }
-    }
-
-    public void createCustomer(Customer customer) {
-        try {
-            if (customer.getId() == null) {
-                customer.setId(UUID.randomUUID());
-            }
-            CustomerRepository.createCustomer(customer);
-        } catch (SQLException e) {
-            throw new InternalServerErrorException("Failed to create customer: ", e);
         }
     }
 
@@ -67,6 +73,3 @@ public class CustomerService {
         }
     }
 }
-
-
-

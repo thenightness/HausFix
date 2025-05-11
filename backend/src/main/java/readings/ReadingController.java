@@ -22,19 +22,19 @@ import java.util.UUID;
 public class ReadingController {
     public static ReadingService readingService;
 
-    @GET
-    @Path("/{uuid}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Reading handleGetReading(@PathParam("uuid") UUID readingId) {
-            return readingService.getReading(readingId);
-    }
-
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response handleCreateReading(Reading reading) {
         readingService.createReading(reading);
         return Response.status(Response.Status.CREATED).entity(reading).build();
+    }
+
+    @GET
+    @Path("/{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Reading handleGetReading(@PathParam("uuid") UUID readingId) {
+        return readingService.getReading(readingId);
     }
 
     @PUT

@@ -47,7 +47,6 @@ public class ReadingRepository {
         return null;
     }
 
-
     // Update - Aktualisiere ein Reading
     public static void updateReading(Reading reading) throws SQLException {
         String query = "UPDATE readings SET meterCount = ?, dateOfReading = ?, customerId = ?, kindOfMeter = ?, substitute = ?, comment = ?, meterId = ? WHERE id = ?";

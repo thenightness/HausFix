@@ -9,6 +9,17 @@ import java.util.UUID;
 
 public class ReadingService {
 
+    public void createReading(Reading reading) {
+        try {
+            if (reading.getId() == null) {
+                reading.setId(UUID.randomUUID());
+            }
+            ReadingRepository.createReading(reading);
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Failed to create reading: ", e);
+        }
+    }
+
     public Reading getReading(UUID id) {
         if (id == null) {
             throw new NotFoundException("Reading ID cannot be null");
@@ -22,17 +33,6 @@ public class ReadingService {
             return reading;
         } catch (SQLException e) {
             throw new InternalServerErrorException("Error fetching reading with ID " + id, e);
-        }
-    }
-
-    public void createReading(Reading reading) {
-        try {
-            if (reading.getId() == null) {
-                reading.setId(UUID.randomUUID());
-            }
-            ReadingRepository.createReading(reading);
-        } catch (SQLException e) {
-            throw new InternalServerErrorException("Failed to create reading: ", e);
         }
     }
 
