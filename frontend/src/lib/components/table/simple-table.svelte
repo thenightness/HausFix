@@ -1,6 +1,6 @@
 <script
   lang="ts"
-  generics="C extends ZodRawShape, E extends ZodRawShape, D extends ZodRawShape, T, CD"
+  generics="C extends ZodRawShape, E extends ZodRawShape, D extends ZodRawShape, T"
 >
   import type { Error, FormSchema } from '../form/types.js';
   import { createTable } from '../table/helpers.svelte';
@@ -18,8 +18,7 @@
     filter_keys: string[];
     columns: (
       editFn: (id: string) => void,
-      deleteFn: (id: string) => void,
-      data: CD
+      deleteFn: (id: string) => void
     ) => ColumnDef<T>[];
     label: string;
     createItemFn: (
@@ -52,7 +51,6 @@
         }
       ]
     >;
-    createButtonDisabled: boolean;
     createForm: FormSchema<C>;
     editForm: FormSchema<any>;
     deleteForm: FormSchema<D>;
@@ -63,7 +61,6 @@
     errorMappings?: {
       [key in RequestError]?: Error;
     };
-    columnData: CD;
   }
 
   let {
@@ -80,7 +77,6 @@
     description,
     editDialog,
     createDialog,
-    createButtonDisabled,
     createForm,
     editForm,
     deleteForm,
@@ -88,8 +84,7 @@
     startEdit,
     createClass,
     editClass,
-    errorMappings,
-    columnData
+    errorMappings
   }: Props = $props();
 
   let isLoading = $state(false);
@@ -123,8 +118,7 @@
       [],
       columns(
         () => {},
-        () => {},
-        columnData
+        () => {}
       ),
       filterFn
     )
@@ -133,7 +127,7 @@
   $effect(() => {
     table = createTable(
       data || [],
-      columns(editItem, deleteItem, columnData),
+      columns(editItem, deleteItem),
       filterFn
     );
   });
@@ -249,8 +243,7 @@
       trigger={{
         text: `Create ${label}`,
         variant: 'secondary',
-        class: 'ml-2',
-        disabled: createButtonDisabled
+        class: 'ml-2'
       }}
       onsubmit={createItem}
       onopen={startCreate}
