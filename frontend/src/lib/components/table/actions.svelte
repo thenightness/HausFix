@@ -4,20 +4,18 @@
 	import { Button } from '../ui/button/index.js';
 
 	interface Props {
-		edit_disabled: boolean;
-		delete_disabled: boolean;
 		edit: () => void;
 		remove: () => void;
 	}
 
-	let { edit_disabled, delete_disabled, edit, remove }: Props = $props();
+	let { edit, remove }: Props = $props();
 </script>
 
 <div class="flex w-full space-x-4">
-	<Button size="icon" variant="secondary" onclick={edit} disabled={edit_disabled} class="ml-auto">
+	<Button size="icon" variant="secondary" onclick={edit} class="ml-auto">
 		<Pencil />
 	</Button>
-	<Button size="icon" variant="destructive" onclick={remove} disabled={delete_disabled}>
+	<Button size="icon" variant="destructive" onclick={remove}>
 		<Trash />
 	</Button>
 </div>
