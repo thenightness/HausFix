@@ -14,7 +14,7 @@ public class Reading implements IReading {
 
     private UUID id;
     private String comment;
-    @JsonProperty("customerId")
+    @JsonProperty("customer")
     @JsonDeserialize(using = CustomerDeserializer.class)
     private ICustomer customer;
     @JsonFormat(pattern = "yyyy-MM-dd")

@@ -235,7 +235,7 @@
       {description}
     </p>
   </div>
-  <Table filterColumn="name" {table} class="min-h-0 flex-1">
+  <Table filterColumn="id" {table} class="min-h-0 flex-1">
     <FormDialog
       title={`Create ${label}`}
       description={`Enter the details for the new ${labelLower} below`}
