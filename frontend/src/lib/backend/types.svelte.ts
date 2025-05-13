@@ -1,8 +1,7 @@
 export enum RequestError {
   Other = 'Other',
-  Unauthorized = 'Unauthorized',
-  Conflict = 'Conflict',
-  Gone = 'Gone'
+  BadRequest = 'BadRequest',
+  NotFound = 'NotFound',
 }
 
 export enum ResponseType {

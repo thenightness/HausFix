@@ -19,6 +19,25 @@ export const get = async <T>(
   return await request(path, 'GET', res_type, undefined, undefined, signal);
 };
 
+export const put = async <T>(
+  path: string,
+  res_type: ResponseType,
+  content_type: ContentType,
+  body: any,
+  signal?: AbortSignal
+): Promise<T | RequestError> => {
+  return await request(path, 'PUT', res_type, content_type, body, signal);
+};
+
+export const deletee = async <T>(
+  path: string,
+  res_type: ResponseType,
+  body: any,
+  signal?: AbortSignal
+): Promise<T | RequestError> => {
+  return await request(path, 'DELETE', res_type, body, signal);
+};
+
 const request = async <T>(
   path: string,
   method: string,
@@ -44,13 +63,12 @@ const request = async <T>(
 
     switch (res.status) {
       case 200:
+      case 201:
         break;
-      case 401:
-        return RequestError.Unauthorized;
-      case 409:
-        return RequestError.Conflict;
-      case 410:
-        return RequestError.Gone;
+      case 400:
+        return RequestError.BadRequest;
+      case 404:
+        return RequestError.NotFound;
       default:
         return RequestError.Other;
     }
