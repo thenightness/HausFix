@@ -1,11 +1,19 @@
 import { z } from 'zod';
+import { Gender } from './types';
 
 export const createSchema = z.object({
-	name: z.string().min(1, 'Name is required')
+	id: z.string().uuid().optional(),
+	firstName: z.string().min(1, 'Surname is required'),
+	lastName: z.string().min(1, 'Name is required'),
+	birthDate: z.date().optional(),
+	gender: z.nativeEnum(Gender)
 });
 
 export const editSchema = z.object({
-	name: z.string().min(1, 'Name is required')
+	firstName: z.string().min(1, 'Surname is required'),
+	lastName: z.string().min(1, 'Name is required'),
+	birthDate: z.date().optional(),
+	gender: z.nativeEnum(Gender)
 });
 
 export const deleteSchema = z.object({});

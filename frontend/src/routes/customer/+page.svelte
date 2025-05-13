@@ -3,6 +3,7 @@
 	import type { PageServerData } from './$types';
 	import { createSchema, deleteSchema, editSchema } from './schema.svelte';
 	import { columns } from './table.svelte';
+	import type { Customer } from './types';
 
 	interface Props {
 		data: PageServerData;
