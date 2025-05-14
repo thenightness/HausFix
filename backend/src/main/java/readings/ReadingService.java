@@ -25,8 +25,10 @@ public class ReadingService {
             if (reading.getCustomer().getId() == null) {
                 reading.getCustomer().setId(UUID.randomUUID());
             }
+
             // Prüfen ob der customer bereits existiert, wenn nicht, neuen customer in DB einfügen
-            if (!CustomerRepository.exists(reading.getCustomer().getId())) {
+            if (reading.getCustomer() != null && reading.getCustomer().getId() != null &&
+                    !CustomerRepository.exists(reading.getCustomer().getId())) {
                 CustomerRepository.createCustomer((Customer) reading.getCustomer());
             }
             // ReadingID setzen

@@ -86,6 +86,8 @@ public class ReadingServiceTest {
         assertNotNull(result);
         assertEquals(reading.getId(), result.getId());
         assertEquals(reading.getMeterId(), result.getMeterId());
+        assertNotNull(reading.getCustomer());
+        assertNotNull(reading.getCustomer().getId());
 
         System.out.println("✅ Reading erfolgreich gefunden:");
         System.out.println("   ID:         " + result.getId());
