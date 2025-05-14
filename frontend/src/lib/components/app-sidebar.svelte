@@ -5,7 +5,6 @@
 	import Upload from '@lucide/svelte/icons/upload';
 	import Download from '@lucide/svelte/icons/download';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import Button from './ui/button/button.svelte';
 
 	const items = [
 		{
@@ -22,12 +21,6 @@
 			title: 'Ablesungen',
 			url: 'reading',
 			icon: Reading
-		}
-	];
-	const option = [
-		{
-			upload: Upload,
-			download: Download
 		}
 	];
 </script>
@@ -54,10 +47,6 @@
 									</a>
 								{/snippet}
 							</Sidebar.MenuButton>
-							{#if item.title !== 'Dashboard'}
-                                <Button class="float-right w-24 mx-2" href={item.url}><Download /></Button>
-								<Button class="float-right w-24 mx-2" href={item.url}><Upload /></Button>
-							{/if}
 						</Sidebar.MenuItem>
 					{/each}
 				</Sidebar.Menu>
