@@ -52,12 +52,15 @@ public class Reading implements IReading {
 
     @Override
     public void setCustomer(ICustomer customer) {
-        if (customer instanceof Customer) {
+        if (customer == null) {
+            this.customer = null;
+        } else if (customer instanceof Customer) {
             this.customer = (Customer) customer;
         } else {
             throw new IllegalArgumentException("Expected Customer instance");
         }
     }
+
 
     @Override
     public LocalDate getDateOfReading() {
