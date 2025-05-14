@@ -3,6 +3,7 @@ package customers;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import response.DeletedCustomerResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,7 +43,10 @@ public class CustomerController {
     @DELETE
     @Path("/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public String handleDeleteCustomer(@PathParam("uuid") UUID uuid) {
-        return customerService.deleteCustomer(uuid);
+    public Response handleDeleteCustomer(@PathParam("uuid") UUID uuid) {
+        DeletedCustomerResponse result = customerService.deleteCustomer(uuid);
+        return Response.ok(result).build();
     }
+
+
 }

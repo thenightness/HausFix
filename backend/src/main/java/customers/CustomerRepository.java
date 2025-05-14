@@ -68,15 +68,23 @@ public class CustomerRepository {
     }
 
     // Löscht einen Kunden anhand der ID
-    public static boolean deleteCustomer(UUID id) throws SQLException {
+    public static Customer deleteCustomer(UUID id) throws SQLException {
         if (id == null) {
             throw new IllegalArgumentException("Customer ID cannot be null");
         }
-        String query = "DELETE FROM customers WHERE id = ?";
-        int rowsAffected = MySQL.executeStatement(query, List.of(id.toString()));
 
-        return rowsAffected > 0;
+        Customer customer = getCustomer(id);
+        if (customer == null) return null;
+
+        String updateQuery = "UPDATE readings SET customerId = NULL WHERE customerId = ?";
+        MySQL.executeStatement(updateQuery, List.of(id.toString()));
+
+        String deleteQuery = "DELETE FROM customers WHERE id = ?";
+        int rowsAffected = MySQL.executeStatement(deleteQuery, List.of(id.toString()));
+
+        return rowsAffected > 0 ? customer : null;
     }
+
 
     // Hilfsmethode: Wandelt ein ResultSet in ein Customer-Objekt um
     private static Customer mapResultSetToCustomer(ResultSet rs) throws SQLException {
