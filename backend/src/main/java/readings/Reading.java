@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import customers.Customer;
 import modules.ICustomer;
 import modules.IReading;
 
@@ -14,9 +15,9 @@ public class Reading implements IReading {
 
     private UUID id;
     private String comment;
-    @JsonProperty("customerId")
+    @JsonProperty("customer")
     @JsonDeserialize(using = CustomerDeserializer.class)
-    private ICustomer customer;
+    private Customer customer;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfReading;
     private KindOfMeter kindOfMeter;
@@ -46,12 +47,16 @@ public class Reading implements IReading {
 
     @Override
     public ICustomer getCustomer() {
-        return customer;
+        return this.customer;
     }
 
     @Override
     public void setCustomer(ICustomer customer) {
-        this.customer = customer;
+        if (customer instanceof Customer) {
+            this.customer = (Customer) customer;
+        } else {
+            throw new IllegalArgumentException("Expected Customer instance");
+        }
     }
 
     @Override

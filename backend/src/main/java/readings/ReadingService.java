@@ -1,7 +1,11 @@
 package readings;
 
+import customers.Customer;
+import customers.CustomerRepository;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
+import customers.CustomerRepository;
+import customers.Customer;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,14 +15,30 @@ public class ReadingService {
 
     public void createReading(Reading reading) {
         try {
+            // Prüfen ob customer vorhanden
+            if (reading.getCustomer() == null) {
+                throw new IllegalArgumentException("Customer must not be null");
+            }
+            // ID setzen falls nicht vorhanden
+            if (reading.getCustomer().getId() == null) {
+                reading.getCustomer().setId(UUID.randomUUID());
+            }
+            // Prüfen ob der customer bereits existiert, wenn nicht, neuen customer in DB einfügen
+            if (!CustomerRepository.exists(reading.getCustomer().getId())) {
+                CustomerRepository.createCustomer((Customer) reading.getCustomer());
+            }
+            // ReadingID setzen
             if (reading.getId() == null) {
                 reading.setId(UUID.randomUUID());
             }
+            // 5. Reading speichern
             ReadingRepository.createReading(reading);
+
         } catch (SQLException e) {
             throw new InternalServerErrorException("Failed to create reading: ", e);
         }
     }
+
 
     public Reading getReading(UUID id) {
         if (id == null) {

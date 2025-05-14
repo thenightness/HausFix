@@ -88,4 +88,14 @@ public class CustomerRepository {
         customer.setGender(ICustomer.Gender.valueOf(rs.getString("gender")));
         return customer;
     }
+    // Prüft ob ein customer bereits existiert
+    public static boolean exists(UUID customerId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM customers WHERE id = ?";
+        ResultSet rs = MySQL.executeSelect(query, List.of(customerId.toString()));
+        if (rs.next()) {
+            return rs.getInt(1) > 0;
+        }
+        return false;
+    }
+
 }
