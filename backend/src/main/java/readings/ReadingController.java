@@ -85,9 +85,7 @@ public class ReadingController {
             }
 
             List<Reading> readings = readingService.getFilteredReadings(customerId, start, end, kindOfMeter);
-            Map<String, Object> result = new HashMap<>();
-            result.put("readings", readings);
-            return Response.ok(result).build();  // Jackson wandelt das automatisch korrekt um
+            return Response.ok(readings).build();  // Jackson wandelt das automatisch korrekt um
 
 
         } catch (Exception e) {

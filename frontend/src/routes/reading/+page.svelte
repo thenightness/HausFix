@@ -1,5 +1,5 @@
-<script lang='ts'>
-	import { Button } from "$lib/components/ui/button/index.js";
+<script lang="ts">
+	import { Button } from '$lib/components/ui/button/index.js';
 	import FormInput from '$lib/components/form/form-input.svelte';
 	import SimpleTable from '$lib/components/table/simple-table.svelte';
 	import { onMount } from 'svelte';
@@ -7,9 +7,8 @@
 	import { createSchema, deleteSchema, editSchema } from './schema.svelte';
 	import { columns } from './table.svelte';
 	import type { Reading } from './types';
-	import { createReading, getReading, updateReading,deleteReading } from './backendRequest';
+	import { createReading, getReading, updateReading, deleteReading } from './backendRequest';
 	import type { SuperValidated } from 'sveltekit-superforms';
-
 
 	interface Props {
 		data: PageServerData;
@@ -58,12 +57,12 @@
 <SimpleTable
 	data={readings}
 	{columns}
-	label="Readings"
+	label="Reading"
 	toId={(item) => item.id}
 	display={(item) => item?.comment}
-	filter_keys={['id','firstName','lastName','gender','birthDate']}
+	filter_keys={['id', 'firstName', 'lastName', 'gender', 'birthDate']}
 	title="Readings"
-	description="view customers"
+	description="view readings"
 	createItemFn={createReadingFromForm}
 	editItemFn={editReadingFromForm}
 	deleteItemFn={deleteReadingFromForm}
@@ -71,4 +70,26 @@
 	{editForm}
 	{deleteForm}
 >
+	{#snippet createDialog({ props })}
+		<fdass>
+			<FormInput label="Reading ID" placeholder="ID-Number" key="id" {...props} />
+			<FormInput label="Customer ID" placeholder="ID-Number" key="customer.id" {...props} />
+		</fdass>
+		<FormInput label="Comment" placeholder="Add a comment" key="comment" {...props} />
+		<FormInput label="Date Of Reading" placeholder="YYYY-MM-DD" key="dateOfReading" {...props} />
+		<FormInput
+			label="Kind Of Meter"
+			placeholder="HEIZUNG, STROM, UNBEKANNT, WASSER"
+			key="kindOfMeter"
+			{...props}
+		/>
+		<FormInput
+			label="Meter Count"
+			placeholder="Enter count"
+			key="meterCount"
+			type="number"
+			{...props}
+		/>
+		<FormInput label="Meter-ID" placeholder="Meter identifier" key="meterId" {...props} />
+	{/snippet}
 </SimpleTable>

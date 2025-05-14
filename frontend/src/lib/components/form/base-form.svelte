@@ -36,6 +36,7 @@
 
 	let form = superForm(formInfo.form, {
 		validators: zodClient(formInfo.schema),
+		dataType: 'json',
 		SPA: true,
 		onUpdate: async ({ form, cancel }) => {
 			if (!form.valid) return;
