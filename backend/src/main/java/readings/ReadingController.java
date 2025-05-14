@@ -61,11 +61,11 @@ public class ReadingController {
             @QueryParam("start") String startStr,
             @QueryParam("end") String endStr,
             @QueryParam("kindOfMeter") String kindOfMeterStr) {
-
+/*
         if (customerId == null) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Parameter 'customer' ist erforderlich.").build();
-        }
+        }*/
 
         try {
             LocalDate start = null;
