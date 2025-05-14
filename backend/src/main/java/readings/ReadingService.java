@@ -6,8 +6,10 @@ import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
 import customers.CustomerRepository;
 import customers.Customer;
+import modules.IReading;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,6 +85,14 @@ public class ReadingService {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Failed to delete reading with ID: " + id, e);
+        }
+    }
+
+    public List<Reading> getFilteredReadings(UUID customerId, LocalDate start, LocalDate end, IReading.KindOfMeter kindOfMeter) {
+        try {
+            return ReadingRepository.getReadingsFiltered(customerId, start, end, kindOfMeter);
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Fehler beim Abrufen der gefilterten Readings", e);
         }
     }
 }
