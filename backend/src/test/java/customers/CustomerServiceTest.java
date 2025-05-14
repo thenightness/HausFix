@@ -5,7 +5,11 @@ import database.MySQL;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import modules.ICustomer;
+import modules.IReading;
 import org.junit.jupiter.api.*;
+import readings.Reading;
+import readings.ReadingRepository;
+import response.DeletedCustomerResponse;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -21,8 +25,10 @@ class CustomerServiceTest {
 
     @BeforeEach
     void setUp() throws SQLException {
-        MySQL.init("127.0.0.1", 3306, "hausfixtestdb", "hausfixtestuser", "testpass");
-        new DatabaseConnection().createAllTables();
+        MySQL.init("mariadb", 3306, System.getenv("MYSQL_DATABASE"), System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
+        DatabaseConnection DBConnection = new DatabaseConnection();
+        DBConnection.createAllTables();
+
 
         customer = new Customer();
         customer.setId(UUID.randomUUID());
@@ -91,12 +97,33 @@ class CustomerServiceTest {
     @Test
     void deleteCustomer_success() throws SQLException {
         CustomerRepository.createCustomer(customer);
-        String msg = service.deleteCustomer(customer.getId());
-        assertTrue(msg.contains("erfolgreich"));
 
-        Customer afterDelete = CustomerRepository.getCustomer(customer.getId());
-        assertNull(afterDelete);
+        Reading reading = new Reading();
+        reading.setId(UUID.randomUUID());
+        reading.setMeterCount(123.45);
+        reading.setDateOfReading(LocalDate.now());
+        reading.setCustomer(customer); // Set FK to existing customer
+        reading.setKindOfMeter(IReading.KindOfMeter.STROM);
+        reading.setSubstitute(false);
+        reading.setComment("Test reading");
+        reading.setMeterId("M123");
+
+        ReadingRepository.createReading(reading);
+
+        DeletedCustomerResponse response = service.deleteCustomer(customer.getId());
+
+        assertNotNull(response);
+        assertNotNull(response.getDeletedCustomer());
+        assertEquals(customer.getId(), response.getDeletedCustomer().getId());
+
+        assertNull(CustomerRepository.getCustomer(customer.getId()));
+
+        assertTrue(
+                response.getOrphanedReadings().stream()
+                        .anyMatch(r -> r.getId().equals(reading.getId()) && r.getCustomer() == null)
+        );
     }
+
 
     @Test
     void deleteCustomer_notFound_ThrowsNotFound() {

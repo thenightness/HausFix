@@ -22,10 +22,10 @@ class ReadingRepositoryTest {
 
     @BeforeEach
     void setUp() throws SQLException {
-        MySQL.init("127.0.0.1", 3306, "hausfixtestdb", "hausfixtestuser", "testpass");
-        new DatabaseConnection().createAllTables();
+        MySQL.init("mariadb", 3306, System.getenv("MYSQL_DATABASE"), System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
+        DatabaseConnection DBConnection = new DatabaseConnection();
+        DBConnection.createAllTables();
 
-        // Insert test customer
         customer = new Customer();
         customer.setId(UUID.randomUUID());
         customer.setFirstName("Test");
@@ -34,7 +34,7 @@ class ReadingRepositoryTest {
         customer.setGender(ICustomer.Gender.M);
         CustomerRepository.createCustomer(customer);
 
-        // Create test reading
+
         reading = new Reading();
         reading.setId(UUID.randomUUID());
         reading.setMeterCount(42.5);
