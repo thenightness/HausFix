@@ -3,6 +3,7 @@
 	import SimpleTable from '$lib/components/table/simple-table.svelte';
 	import { onMount } from 'svelte';
 	import type { PageServerData } from './$types';
+	import { RequestError } from '$lib/backend/types.svelte';
 	import { createSchema, deleteSchema, editSchema } from './schema.svelte';
 	import { columns } from './table.svelte';
 	import type { Customer } from './types';
@@ -46,10 +47,53 @@
 		customers = (await getCustomer()) ?? customers;
 		return result;
 	}
-	async function deleteCustomerFromForm(id: string) {
+	/*async function deleteCustomerFromForm(id: string) {
 		let result = await deleteCustomer(id);
 		customers = (await getCustomer()) ?? customers;
 		return result;
+	}*/
+
+	type DeletedCustomerResponse = {
+		deletedCustomer: Customer;
+		readings: any[];
+	};
+
+	function isDeletedCustomerResponse(obj: any): obj is DeletedCustomerResponse {
+		return obj && typeof obj === 'object' && 'deletedCustomer' in obj && 'readings' in obj;
+	}
+
+	async function deleteCustomerFromForm(id: string): Promise<RequestError | undefined> {
+		try {
+			const result = await deleteCustomer(id);
+			console.log('Antwort vom Backend:', result);
+
+			if (isDeletedCustomerResponse(result)) {
+				console.log('✅ Zeige Alert statt Dialog');
+
+				const customer = result.deletedCustomer;
+				const readings = result.readings;
+
+				let message = `Kunde gelöscht:\n\n`;
+				message += `ID: ${customer.id}\n`;
+				message += `Name: ${customer.firstName} ${customer.lastName}\n\n`;
+				message += `Ablesungen (customer = null):\n`;
+				for (const reading of readings) {
+					message += `• ID: ${reading.id}, Wert: ${reading.meterCount}\n`;
+				}
+
+				setTimeout(() => {
+					alert(message);
+				}, 300);
+			} else {
+				console.warn('⚠️ Ergebnis hat nicht das erwartete Format!', result);
+			}
+
+			customers = (await getCustomer()) ?? customers;
+			return undefined;
+		} catch (e) {
+			console.error('Fehler beim Löschen:', e);
+			return RequestError.Other;
+		}
 	}
 </script>
 
@@ -83,3 +127,11 @@
 		<FormInput label="Birthdate" placeholder="1990-01-01" key="birthDate" {...props} />
 	{/snippet}
 </SimpleTable>
+
+
+
+
+
+
+
+
