@@ -12,7 +12,7 @@ public class DeletedCustomerResponse {
     @JsonProperty("deletedCustomer")
     private Customer deletedCustomer;
 
-    @JsonProperty("orphanedReadings")
+    @JsonProperty("readings")
     private List<Reading> orphanedReadings;
 
     public DeletedCustomerResponse(Customer deletedCustomer, List<Reading> orphanedReadings) {
