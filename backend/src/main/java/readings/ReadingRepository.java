@@ -76,6 +76,39 @@ public class ReadingRepository {
         return MySQL.executeStatement(query, List.of(id.toString())) > 0;
     }
 
+    // Get reading nach einem Filter
+    public static List<Reading> getReadingsFiltered(UUID customerId, LocalDate start, LocalDate end, IReading.KindOfMeter kindOfMeter) throws SQLException {
+        List<Object> parameters = new ArrayList<>();
+        StringBuilder query = new StringBuilder("SELECT * FROM readings WHERE customerId = ?");
+
+        parameters.add(customerId.toString());
+
+        if (start != null) {
+            query.append(" AND dateOfReading >= ?");
+            parameters.add(start.toString());
+        }
+
+        if (end != null) {
+            query.append(" AND dateOfReading <= ?");
+            parameters.add(end.toString());
+        }
+
+        if (kindOfMeter != null) {
+            query.append(" AND kindOfMeter = ?");
+            parameters.add(kindOfMeter.toString());
+        }
+
+        ResultSet rs = MySQL.executeSelect(query.toString(), parameters);
+
+        List<Reading> readings = new ArrayList<>();
+        while (rs.next()) {
+            readings.add(mapResultSetToReading(rs));
+        }
+
+        return readings;
+    }
+
+
     public static List<Reading> getReadingsWithNullCustomer() throws SQLException {
         String query = "SELECT * FROM readings WHERE customerId IS NULL";
         ResultSet rs = MySQL.executeSelect(query, List.of());
