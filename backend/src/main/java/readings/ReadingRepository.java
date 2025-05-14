@@ -76,7 +76,6 @@ public class ReadingRepository {
         return MySQL.executeStatement(query, List.of(id.toString())) > 0;
     }
 
-
     public static List<Reading> getReadingsWithNullCustomer() throws SQLException {
         String query = "SELECT * FROM readings WHERE customerId IS NULL";
         ResultSet rs = MySQL.executeSelect(query, List.of());
