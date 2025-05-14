@@ -1,22 +1,26 @@
 package readings;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import customers.Customer;
 import modules.ICustomer;
 import modules.IReading;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Reading implements IReading {
 
     private UUID id;
     private String comment;
     @JsonProperty("customer")
     @JsonDeserialize(using = CustomerDeserializer.class)
-    private ICustomer customer;
+    private Customer customer;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfReading;
     private KindOfMeter kindOfMeter;
@@ -46,12 +50,19 @@ public class Reading implements IReading {
 
     @Override
     public ICustomer getCustomer() {
-        return customer;
+        return this.customer;
     }
 
     @Override
     public void setCustomer(ICustomer customer) {
-        this.customer = customer;
+        if (customer == null) {
+            this.customer = null;
+            return;
+        }
+        if (!(customer instanceof Customer)) {
+            throw new IllegalArgumentException("Expected Customer instance");
+        }
+        this.customer = (Customer) customer;
     }
 
     @Override
