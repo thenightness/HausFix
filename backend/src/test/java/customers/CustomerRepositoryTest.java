@@ -5,6 +5,8 @@ import database.MySQL;
 import jakarta.ws.rs.NotFoundException;
 import modules.ICustomer;
 import org.junit.jupiter.api.*;
+import readings.Reading;
+import readings.ReadingRepository;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -19,7 +21,7 @@ class CustomerRepositoryTest {
 
     @BeforeEach
     public void setUp() throws SQLException {
-        MySQL.init("127.0.0.1", 3306, "hausfixtestdb", "hausfixtestuser", "testpass");
+        MySQL.init("mariadb", 3306, System.getenv("MYSQL_DATABASE"), System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
         DatabaseConnection DBConnection = new DatabaseConnection();
         DBConnection.createAllTables();
 
@@ -55,11 +57,19 @@ class CustomerRepositoryTest {
     }
 
     @Test
-    void testDeleteCustomer() throws SQLException {
-        boolean deleted = CustomerRepository.deleteCustomer(customer.getId());
-        assertTrue(deleted);
+    void testDeleteCustomer_andOrphanReadings() throws SQLException {
+        assertNotNull(CustomerRepository.getCustomer(customer.getId()));
+
+        Customer deletedCustomer = CustomerRepository.deleteCustomer(customer.getId());
+
+        assertNotNull(deletedCustomer);
+        assertEquals(customer.getId(), deletedCustomer.getId());
+
         assertNull(CustomerRepository.getCustomer(customer.getId()));
+        List<Reading> orphaned = ReadingRepository.getReadingsWithNullCustomer();
+        assertTrue(orphaned.stream().anyMatch(r -> r.getCustomer() == null));
     }
+
 
     @Test
     void testGetCustomerWithUnknownIdReturnsNull() throws SQLException {
