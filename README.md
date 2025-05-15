@@ -36,7 +36,10 @@
 - [REST API Übersicht](#übersicht)
 - [Testing](#testing)
 
-
+## User Interface
+<p align="center">
+  <img src="images/gui.png" alt="gui.png"/>
+</p>
 
 ## Setup & Installation
 
@@ -49,7 +52,7 @@
 
 ### Voraussetzungen
 
-Zur Verwendung der Software werden folgende Programme benötigt:
+Zur Verwendung der Software wird Folgendes benötigt:
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Maven](https://maven.apache.org/download.cgi) (Backend)
@@ -65,7 +68,7 @@ Zur Verwendung der Software werden folgende Programme benötigt:
    ```
 ### .env Dateien einrichten
 
-Führe folgende Schritte für die `.env.example` aus dem `HausFix` und dem `Frontend` Ordner
+Führe folgende Schritte für die Ordner `HausFix` und  `Frontend` durch:
 
 1. Erstelle eine `.env` Datei im jeweiligen Ordner.
 2. Kopiere den Inhalt aus der `.env.example`:
@@ -116,7 +119,7 @@ src/main/java/reading
 ```
 
 <p align="center">
-  <img src="readmeSequenzdiagramm.png" alt="sequenzdiagramm"/>
+  <img src="images/sequenzdiagramm.png" alt="sequenzdiagramm"/>
 </p>
 
 ## Testing
@@ -124,7 +127,7 @@ Unit-Tests wurden mit JUnit geschrieben. Um diese auszuführen muss eine Run/Deb
 Diese führt die `docker-compose-test.yml` aus. Beim Ausführen dieser werden alle Tests ausgeführt
 
 <p align="center">
-  <img src="readmeTestingConfig.png" alt="TestingConfig"/>
+  <img src="images/testingConfig.png" alt="TestingConfig"/>
 </p>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
