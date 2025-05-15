@@ -62,20 +62,17 @@ public class ReadingController {
             @QueryParam("end") String endStr,
             @QueryParam("kindOfMeter") String kindOfMeterStr) {
 
-        if (customerId == null) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Parameter 'customer' ist erforderlich.").build();
-        }
-
         try {
             LocalDate start = null;
             LocalDate end = null;
+
             if (startStr != null && !startStr.isBlank()) {
                 start = LocalDate.parse(startStr);
             }
+
             if (endStr != null && !endStr.isBlank()) {
                 end = LocalDate.parse(endStr);
-            } else {
+            } else if (start != null) {
                 end = LocalDate.now();
             }
 
@@ -87,8 +84,7 @@ public class ReadingController {
             List<Reading> readings = readingService.getFilteredReadings(customerId, start, end, kindOfMeter);
             Map<String, Object> result = new HashMap<>();
             result.put("readings", readings);
-            return Response.ok(result).build();  // Jackson wandelt das automatisch korrekt um
-
+            return Response.ok(result).build();
 
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST)

@@ -92,9 +92,12 @@ public class ReadingRepository {
     // Get reading nach einem Filter
     public static List<Reading> getReadingsFiltered(UUID customerId, LocalDate start, LocalDate end, IReading.KindOfMeter kindOfMeter) throws SQLException {
         List<Object> parameters = new ArrayList<>();
-        StringBuilder query = new StringBuilder("SELECT * FROM readings WHERE customerId = ?");
+        StringBuilder query = new StringBuilder("SELECT * FROM readings WHERE 1=1");
 
-        parameters.add(customerId.toString());
+        if (customerId != null) {
+            query.append(" AND customerId = ?");
+            parameters.add(customerId.toString());
+        }
 
         if (start != null) {
             query.append(" AND dateOfReading >= ?");
@@ -114,7 +117,7 @@ public class ReadingRepository {
         ResultSet rs = MySQL.executeSelect(query.toString(), parameters);
 
         List<Reading> readings = new ArrayList<>();
-        while (rs.next()) {
+        while (rs != null && rs.next()) {
             readings.add(mapResultSetToReading(rs));
         }
 
