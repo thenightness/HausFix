@@ -1,7 +1,7 @@
 FROM jelastic/maven:3.9.9-openjdk-21.0.2-almalinux-9 AS build
 
-COPY src /usr/src/app/src
-COPY pom.xml /usr/src/app
+COPY backend/src /usr/src/app/src
+COPY backend/pom.xml /usr/src/app
 # Maven-Dependencies werden gecached      Sagt wo die pom.xml liegt
 # clean: räumt auf
 # package: erstellt die .jar
