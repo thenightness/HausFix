@@ -19,7 +19,9 @@ services:
       timeout: 5s
 
   backend:
-    build: ./backend
+    build: 
+      dockerfile: backend/Dockerfile
+      context: .
     environment:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
