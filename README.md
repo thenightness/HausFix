@@ -22,44 +22,23 @@
 
 
 
-<!-- INHALTSVERZEICHNIS -->
-<details>
-  <summary>Inhaltsverzeichnis</summary>
-  <ol>
-    <li>
-      <a href="#ueber-das-Projekt">Über das Projekt</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
+
+## Inhaltsverzeichnis
+
+- [Setup & Installation](#setup--installation)
+   - [Tech Stack](#tech-stack)
+   - [Voraussetzungen](#voraussetzungen)
+   - [Repository clonen](#repository-clonen)
+   - [NPM packages installieren](#npm-packages-installieren)
+   - [.env Dateien einrichten](#env-dateien-einrichten)
+   - [Umbenennen der remote URL](#umbenennen-der-remote-url)
+   - [Startbefehl](#startbefehl)
+- [REST API Übersicht](#übersicht)
+- [Testing](#testing)
 
 
 
-<!-- ÜBER DAS PROJEKT -->
-## Über das Projekt
-
-[![HausFix Screen Shot][hausfix-screenshot]](https://example.com)
-
-Beschreibung folgt
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
+## Setup & Installation
 
 ### Tech Stack
 * [![Svelte][Svelte.dev]][Svelte-url]
@@ -68,21 +47,13 @@ Beschreibung folgt
 * [![Java][Java.com]][Java-url]
 * [![Maven][Maven.Apache.org]][Maven-url]
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- Setup & Installation -->
-## Getting Started
-
-Prüfen ob
 ### Voraussetzungen
 
-Zur Verwendung der Software werden folgende Programme benötigt
+Zur Verwendung der Software werden folgende Programme benötigt:
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
-- [Maven](https://maven.apache.org/download.cgi)
-- [Node.js & npm](https://nodejs.org/) (für das Frontend)
+- [Maven](https://maven.apache.org/download.cgi) (Backend)
+- [Node.js & npm](https://nodejs.org/) (Frontend)
 
 ### Repository clonen
    ```sh
@@ -92,51 +63,78 @@ Zur Verwendung der Software werden folgende Programme benötigt
    ```sh
    npm install
    ```
-### .env Datei einrichten
+### .env Dateien einrichten
 
-1. Erstelle eine `.env` Datei im Projektverzeichnis.
+Führe folgende Schritte für die `.env.example` aus dem `HausFix` und dem `Frontend` Ordner
+
+1. Erstelle eine `.env` Datei im jeweiligen Ordner.
 2. Kopiere den Inhalt aus der `.env.example`:
    ```bash
    cp .env.example .env
 3. Passe die Umgebungsvariablen in .env an
-### Startbefehl
 
-```bash
-docker-compose up --build
-```
-damit werden:
-- Die MariaDB-Datenbank mit port 3306 gestartet 
-- Das Java-Backend (REST-API) auf Port 42069 gestartet
-- Das Frontend gestartet
-
-### Installation
-
-
-4. Change git remote url to avoid accidental pushes to base project
+### Umbenennen der remote URL
+Change git remote url to avoid accidental pushes to base project
+Ändere die git remote url um unbeabsichtigte pushs ins Base Projekts zu verhindern
    ```sh
    git remote set-url origin thenightness/HausFix
    git remote -v # confirm the changes
    ```
+### Startbefehl
+Für die Startbefehle von Frontend und Backend werden zwei Terminals gebraucht.
+
+
+```bash
+//Backend Terminal
+docker compose up --build 
+```
+
+
+```bash
+//Frontend Terminal
+cd .\frontend\
+npm run dev
+```
+Damit wird:
+- Die MariaDB-Datenbank mit port 3306 gestartet
+- Das Java-Backend (REST-API) auf Port 42069 gestartet
+- Das Frontend gestartet in LocalHost auf http://localhost:5173/ gestartet
+
+### Übersicht
+
+Aktionen aus dem Frontend werden per REST-API weitergegeben. Siehe folgende Ordner
+```
+src/main/java/customers
+├──CustomerController
+├──CustomerRepository
+└──CustomerService
+
+src/main/java/reading
+├──ReadingController
+├──ReadingRepository
+└──ReadingService
+```
+
+<p align="center">
+  <img src="readmeSequenzdiagramm.png" alt="sequenzdiagramm"/>
+</p>
+
+## Testing
+Unit-Tests wurden mit JUnit geschrieben. Um diese auszuführen muss eine Run/Debug Configuration hinzugefügt werden.
+Diese führt die `docker-compose-test.yml` aus. Beim Ausführen dieser werden alle Tests ausgeführt
+
+<p align="center">
+  <img src="readmeTestingConfig.png" alt="TestingConfig"/>
+</p>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- USAGE EXAMPLES -->
-## Dokumentation
-### [Backend](backend/README.md)
-### [Frontend](frontend/README.md)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-### Top contributors:
+## Top contributors:
 
 <a href="https://github.com/thenightness/HausFix/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=thenightness/HausFix" alt="contrib.rocks image" />
 </a>
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
