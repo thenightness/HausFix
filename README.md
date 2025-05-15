@@ -61,7 +61,7 @@ Beschreibung folgt
 
 
 
-### Built With
+### Tech Stack
 * [![Svelte][Svelte.dev]][Svelte-url]
 * [![MariaDB][Mariadb.org]][Mariadb-url]
 * [![Docker][Docker.com]][Docker-url]
@@ -72,38 +72,46 @@ Beschreibung folgt
 
 
 
-<!-- GETTING STARTED -->
+<!-- Setup & Installation -->
 ## Getting Started
 
-Beschreibung folgt.
-Um eine lokale Kopie zum Laufen zu bringen, befolgen Sie den folgenden Schritten.
-
-### Prerequisites
+Prüfen ob
+### Voraussetzungen
 
 Zur Verwendung der Software werden folgende Programme benötigt
-* Docker
-  ```sh
-  start /w "" "Docker Desktop Installer.exe" install
-  ```
-* Maven [Download ins Java Directory](https://maven.apache.org/download.cgi)
-  ```sh
-  
-  ```
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Maven](https://maven.apache.org/download.cgi)
+- [Node.js & npm](https://nodejs.org/) (für das Frontend)
 
-### Installation
-
-1. Clone the repo
+### Repository clonen
    ```sh
    git clone https://github.com/thenightness/HausFix.git
    ```
-2. Install NPM packages
+### NPM packages installieren
    ```sh
    npm install
    ```
-3. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
+### .env Datei einrichten
+
+1. Erstelle eine `.env` Datei im Projektverzeichnis.
+2. Kopiere den Inhalt aus der `.env.example`:
+   ```bash
+   cp .env.example .env
+3. Passe die Umgebungsvariablen in .env an
+### Startbefehl
+
+```bash
+docker-compose up --build
+```
+damit werden:
+- Die MariaDB-Datenbank mit port 3306 gestartet 
+- Das Java-Backend (REST-API) auf Port 42069 gestartet
+- Das Frontend gestartet
+
+### Installation
+
+
 4. Change git remote url to avoid accidental pushes to base project
    ```sh
    git remote set-url origin thenightness/HausFix
