@@ -1,7 +1,7 @@
 <script lang="ts" generics="C extends ZodRawShape, E extends ZodRawShape, D extends ZodRawShape, T">
 	import type { Error, FormSchema } from '../form/types.js';
-	import { createTable } from '../table/helpers.svelte';
-	import Table from '../table/base-table.svelte';
+	import { createTable } from '../table/helpers2.svelte';
+	import Table from '../table/base-table2.svelte';
 	import { toast } from 'svelte-sonner';
 	import type { ColumnDef, Row } from '@tanstack/table-core';
 	import { RequestError } from '$lib/backend/types.svelte';
@@ -17,7 +17,6 @@
 
 	interface Props {
 		data: T[] | undefined;
-		filter_keys: string[];
 		columns: (editFn: (id: string) => void, deleteFn: (id: string) => void) => ColumnDef<T>[];
 		label: string;
 		createItemFn: (form: SuperValidated<C>) => Promise<RequestError | undefined>;
@@ -58,11 +57,11 @@
 		errorMappings?: {
 			[key in RequestError]?: Error;
 		};
+		filter?: Snippet;
 	}
 
 	let {
 		data,
-		filter_keys,
 		columns,
 		label,
 		createItemFn,
@@ -81,7 +80,8 @@
 		startEdit,
 		createClass,
 		editClass,
-		errorMappings
+		errorMappings,
+		filter
 	}: Props = $props();
 
 	let isLoading = $state(false);
@@ -97,30 +97,18 @@
 		editComp?.setValue || (() => {})
 	);
 
-	const filterFn = (row: Row<T>, id: string, filterValues: any) => {
-		const info = filter_keys
-			.map((k) => (row.original as any)[k] as string)
-			.filter(Boolean)
-			.join(' ')
-			.toLowerCase();
-
-		let searchTerms = Array.isArray(filterValues) ? filterValues : [filterValues];
-		return searchTerms.some((term) => info.includes(term.toLowerCase()));
-	};
-
 	let table = $state(
 		createTable(
 			[],
 			columns(
 				() => {},
 				() => {}
-			),
-			filterFn
+			)
 		)
 	);
 
 	$effect(() => {
-		table = createTable(data || [], columns(editItem, deleteItem), filterFn);
+		table = createTable(data || [], columns(editItem, deleteItem));
 	});
 
 	const createItem = async (form: SuperValidated<C>) => {
@@ -228,7 +216,7 @@
 		<Button class="float-right mx-2 w-24" onclick={downloadCustomer}><Download /></Button>
 		<Button class="float-right mx-2 w-24" onclick={downloadCustomer}><Upload /></Button>
 	</div>
-	<Table filterColumn="id" {table} class="min-h-0 flex-1">
+	<Table {table} class="min-h-0 flex-1"  {filter}>
 		<FormDialog
 			title={`Create ${label}`}
 			description={`Enter the details for the new ${labelLower} below`}

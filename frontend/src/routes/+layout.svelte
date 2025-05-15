@@ -9,7 +9,7 @@
 
 <ModeWatcher />
 
-<Sidebar.Provider>
+<Sidebar.Provider class="h-full">
 	<AppSidebar />
 	<main class="flex h-full w-full">
 		{@render children?.()}

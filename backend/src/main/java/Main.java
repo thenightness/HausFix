@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import readings.ReadingController;
 import readings.ReadingService;
+import server.CORSFilter;
 import util.JacksonConfig;
 
 import java.io.IOException;
@@ -49,6 +50,7 @@ public class Main {
         objectMapper.registerModule(new JavaTimeModule());
         //final ResourceConfig rc = new ResourceConfig().packages(pack).register(AuthenticationFilter.class);
         final ResourceConfig rc = new ResourceConfig().packages("customers", "readings", "database").register(JacksonFeature.class).register(JacksonConfig.class);
+        rc.register(new CORSFilter());
         final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(url), rc);
         System.out.println("Ready for Requests....");
 
