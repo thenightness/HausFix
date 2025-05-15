@@ -13,7 +13,7 @@
 	import Upload from '@lucide/svelte/icons/upload';
 	import Download from '@lucide/svelte/icons/download';
 	import { getCustomer } from '../../../routes/customer/backendRequest.js';
-	import { downloadCustomer } from '$lib/util/exchange.js';
+	import { downloadCustomer, downloadReading } from '$lib/util/exchange.js';
 
 	interface Props {
 		data: T[] | undefined;
@@ -213,8 +213,8 @@
 		<p class="text-sm text-muted-foreground">
 			{description}
 		</p>
-		<Button class="float-right mx-2 w-24" onclick={downloadCustomer}><Download /></Button>
-		<Button class="float-right mx-2 w-24" onclick={downloadCustomer}><Upload /></Button>
+		<Button class="float-right mx-2 w-24" onclick={downloadReading}><Download /></Button>
+		<Button class="float-right mx-2 w-24" onclick={downloadReading}><Upload /></Button>
 	</div>
 	<Table {table} class="min-h-0 flex-1"  {filter}>
 		<FormDialog
