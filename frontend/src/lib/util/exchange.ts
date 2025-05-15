@@ -8,7 +8,7 @@ export async function download() {
 	if (window.location.pathname.includes('/customers')) {
 		downloadCustomer();
 	} else if (window.location.pathname.includes('/readings')) {
-    getReading()
+		getReading();
 	}
 }
 
@@ -28,7 +28,7 @@ export async function downloadReading() {
 	return;
 }
 export async function uploadCustomer() {}
-function readingsToCsvAndDownload(customer: Customer[], filename: string = 'readings.csv'): void {
+function readingsToCsvAndDownload(customer: Customer[], filename: string = 'customer.csv'): void {
 	// 1. Define the CSV header row
 	const header = ['Kunden-ID', 'Vorname', 'Nachname', 'Geburtsdatum', 'Geschlecht'];
 

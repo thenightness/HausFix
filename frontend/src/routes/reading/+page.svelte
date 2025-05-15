@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import FormInput from '$lib/components/form/form-input.svelte';
-	import SimpleTable from '$lib/components/table/simple-table.svelte';
+	import SimpleTable from '$lib/components/table/simple-table2.svelte';
 	import { onMount } from 'svelte';
 	import type { PageServerData } from './$types';
 	import { createSchema, deleteSchema, editSchema } from './schema.svelte';
@@ -10,6 +10,7 @@
 	import { createReading, getReading, updateReading, deleteReading } from './backendRequest';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import FormCombobox from '$lib/components/form/form-combobox.svelte';
+	import { Input } from '$lib/components/ui/input';
 
 	interface Props {
 		data: PageServerData;
@@ -36,28 +37,37 @@
 
 	onMount(loadReading);
 
+	export async function setReading(r: Reading[]) {
+		readings = r;
+	}
+
 	async function loadReading() {
-		readings = (await getReading()) ?? readings;
+		readings = (await getReading({customerInput, startDateInput, endDateInput, kindOfMeterInput})) ?? readings;
 	}
 	async function createReadingFromForm(form: SuperValidated<any>) {
 		let result = await createReading(form.data);
-		readings = (await getReading()) ?? readings;
+		readings = (await getReading({customerInput, startDateInput, endDateInput, kindOfMeterInput})) ?? readings;
 		return result;
 	}
 	async function editReadingFromForm(item: Reading) {
 		let result = await updateReading(item);
-		readings = (await getReading()) ?? readings;
+		readings = (await getReading({customerInput, startDateInput, endDateInput, kindOfMeterInput})) ?? readings;
 		return result;
 	}
 	async function deleteReadingFromForm(id: string) {
 		let result = await deleteReading(id);
-		readings = (await getReading()) ?? readings;
+		readings = (await getReading({customerInput, startDateInput, endDateInput, kindOfMeterInput})) ?? readings;
 		return result;
 	}
 	const customerOptions = customers.map((customer) => ({
 		value: customer.id, // Der Wert, der im Formular gespeichert wird (die Kunden-ID)
 		label: `${customer.lastName}, ${customer.firstName}` // Der Text, der im Dropdown angezeigt wird
 	}));
+
+	let customerInput = $state('');
+	let startDateInput = $state('');
+	let endDateInput = $state('');
+	let kindOfMeterInput = $state('');
 </script>
 
 <SimpleTable
@@ -66,7 +76,6 @@
 	label="Reading"
 	toId={(item) => item.id}
 	display={(item) => item?.comment}
-	filter_keys={['id']}
 	title="Readings"
 	description="view readings"
 	createItemFn={createReadingFromForm}
@@ -76,6 +85,13 @@
 	{editForm}
 	{deleteForm}
 >
+	{#snippet filter()}
+		<Input placeholder="Customer" class="mr-2 max-w-full" bind:value={customerInput} />
+		<Input placeholder="Start Date" class="mr-2 max-w-full" bind:value={startDateInput} />
+		<Input placeholder="End Date" class="mr-2 max-w-full" bind:value={endDateInput} />
+		<Input placeholder="Kind Of Meter" class="mr-2 max-w-full" bind:value={kindOfMeterInput} />
+		<Button class="mr-2 max-w-full" onclick={loadReading}>Filtern</Button>
+	{/snippet}
 	{#snippet createDialog({ props })}
 		<FormCombobox
 			label="Reading ID"
