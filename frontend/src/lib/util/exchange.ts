@@ -19,7 +19,9 @@ export async function downloadReading() {
 	}
 	return;
 }
-export async function uploadCustomer() {}
+export async function uploadCustomer() {
+	
+}
 function customersToCsvAndDownload(customer: Customer[], filename: string = 'customer.csv'): void {
 	// 1. Define the CSV header row
 	const header = ['Kunden-ID', 'Vorname', 'Nachname', 'Geburtsdatum', 'Geschlecht'];

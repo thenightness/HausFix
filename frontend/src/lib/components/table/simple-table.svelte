@@ -13,7 +13,8 @@
 	import Upload from '@lucide/svelte/icons/upload';
 	import Download from '@lucide/svelte/icons/download';
 	import { getCustomer } from '../../../routes/customer/backendRequest.js';
-	import { downloadCustomer } from '$lib/util/exchange.js';
+	import { downloadCustomer, uploadCustomer } from '$lib/util/exchange.js';
+	import { Input } from '../ui/input/index.js';
 
 	interface Props {
 		data: T[] | undefined;
@@ -123,6 +124,34 @@
 		table = createTable(data || [], columns(editItem, deleteItem), filterFn);
 	});
 
+	let imageInput: undefined | HTMLElement | null = $state(null);
+
+	const startFileUpload = () => {
+		imageInput?.click();
+	};
+
+	const updateFile = async (e: Event) => {
+		let input = e.target as HTMLInputElement;
+		let file = input.files?.[0];
+		if (file) {
+			const reader = new FileReader();
+
+			reader.onload = function (evt) {
+				if (!evt.target) return;
+				if (evt.target.readyState != 2) return;
+				if (evt.target.error) {
+					return;
+				}
+
+				let text = evt.target.result;
+				//parseCsv(test)
+				console.log(text);
+			};
+
+			reader.readAsText(file);
+		}
+	};
+
 	const createItem = async (form: SuperValidated<C>) => {
 		let ret = await createItemFn(form);
 
@@ -226,7 +255,15 @@
 			{description}
 		</p>
 		<Button class="float-right mx-2 w-24" onclick={downloadCustomer}><Download /></Button>
-		<Button class="float-right mx-2 w-24" onclick={downloadCustomer}><Upload /></Button>
+		<Button class="float-right mx-2 w-24" onclick={startFileUpload}><Upload /></Button>
+		<Input
+			bind:ref={imageInput}
+			type="file"
+			id="picture"
+			accept=".csv"
+			class="hidden"
+			onchange={updateFile}
+		/>
 	</div>
 	<Table filterColumn="id" {table} class="min-h-0 flex-1">
 		<FormDialog
