@@ -13,7 +13,7 @@
 	import Upload from '@lucide/svelte/icons/upload';
 	import Download from '@lucide/svelte/icons/download';
 	import { getCustomer } from '../../../routes/customer/backendRequest.js';
-	import { downloadCustomer, uploadCustomer } from '$lib/util/exchange.js';
+	import { downloadCustomer, parseCsvToCustomer } from '$lib/util/exchange.js';
 	import { Input } from '../ui/input/index.js';
 
 	interface Props {
@@ -143,9 +143,10 @@
 					return;
 				}
 
-				let text = evt.target.result;
+				let text = evt.target.result as string;
 				//parseCsv(test)
-				console.log(text);
+				parseCsvToCustomer(text);
+				
 			};
 
 			reader.readAsText(file);

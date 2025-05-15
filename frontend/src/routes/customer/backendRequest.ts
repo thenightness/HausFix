@@ -1,6 +1,7 @@
 import { ContentType, ResponseType } from '$lib/backend/types.svelte';
 import { post, get, put, deletee } from '$lib/backend/util.svelte';
 import type { Customer } from './types';
+import { type Custom } from '../../lib/util/types';
 
 export async function getCustomer() {
     let result = await get<Customer[]>('/customers', ResponseType.Json);
@@ -9,6 +10,12 @@ export async function getCustomer() {
     }
 }
 export async function createCustomer(item: Customer){
+    let result = await post<Customer>('/customers', ResponseType.Json, ContentType.Json, JSON.stringify(item));
+    if(typeof result !== 'object'){
+        return result;
+    }
+}
+export async function createCustom(item: Custom){
     let result = await post<Customer>('/customers', ResponseType.Json, ContentType.Json, JSON.stringify(item));
     if(typeof result !== 'object'){
         return result;

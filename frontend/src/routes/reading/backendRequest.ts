@@ -1,5 +1,6 @@
 import { ContentType, ResponseType } from '$lib/backend/types.svelte';
 import { post, get, put, deletee } from '$lib/backend/util.svelte';
+import type { Read } from '$lib/util/types';
 import type { Reading } from './types';
 
 let customerInput;
@@ -27,6 +28,17 @@ export async function getReading(
 }
 export async function createReading(item: Reading) {
 	let result = await post<Reading>(
+		'/readings',
+		ResponseType.Json,
+		ContentType.Json,
+		JSON.stringify(item)
+	);
+	if (typeof result !== 'object') {
+		return result;
+	}
+}
+export async function createRead(item: Read) {
+	let result = await post<Read>(
 		'/readings',
 		ResponseType.Json,
 		ContentType.Json,

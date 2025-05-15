@@ -13,7 +13,7 @@
 	import Upload from '@lucide/svelte/icons/upload';
 	import Download from '@lucide/svelte/icons/download';
 	import { getCustomer } from '../../../routes/customer/backendRequest.js';
-	import { downloadReading } from '$lib/util/exchange.js';
+	import { downloadReading, parseCsvToReading } from '$lib/util/exchange.js';
 	import { Input } from '../ui/input/index.js';
 	interface Props {
 		data: T[] | undefined;
@@ -129,9 +129,10 @@
 					return;
 				}
 
-				let text = evt.target.result;
+				let text = evt.target.result as string;
 				//parseCsv(test)
 				console.log(text);
+				parseCsvToReading(text);
 			};
 
 			reader.readAsText(file);
@@ -241,7 +242,7 @@
 			{description}
 		</p>
 		<Button class="float-right mx-2 w-24" onclick={downloadReading}><Download /></Button>
-		<Button class="float-right mx-2 w-24" onclick={downloadReading}><Upload /></Button>
+		<Button class="float-right mx-2 w-24" onclick={startFileUpload}><Upload /></Button>
 		<Input
 		bind:ref={imageInput}
 		type="file"
