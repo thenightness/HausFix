@@ -6,9 +6,9 @@ import type { Reading } from '../../routes/reading/types';
 
 export async function download() {
 	if (window.location.pathname.includes('/customers')) {
-		downloadCustomer();
+		
 	} else if (window.location.pathname.includes('/readings')) {
-		getReading();
+		
 	}
 }
 
@@ -60,3 +60,4 @@ function readingsToCsvAndDownload(customer: Customer[], filename: string = 'cust
 	document.body.removeChild(link);
 	URL.revokeObjectURL(url);
 }
+
