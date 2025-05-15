@@ -154,6 +154,50 @@ class ReadingRepositoryTest {
         assertNull(r.getCustomer());
     }
 
+    @Test
+    void testGetReadingsWithNullCustomer() throws SQLException {
+        UUID orphanedId = UUID.randomUUID();
+        String query = "INSERT INTO readings (id, meterCount, dateOfReading, customerId, kindOfMeter, substitute, comment, meterId) " +
+                "VALUES (?, ?, ?, NULL, ?, ?, ?, ?)";
+        MySQL.executeStatement(query, java.util.List.of(
+                orphanedId.toString(),
+                "11.1",
+                LocalDate.now().toString(),
+                IReading.KindOfMeter.WASSER.toString(),
+                "0",
+                "Orphaned",
+                "MTR-ORPHAN"
+        ));
+
+        var result = ReadingRepository.getReadingsWithNullCustomer();
+        assertNotNull(result);
+        assertTrue(result.stream().anyMatch(r -> r.getId().equals(orphanedId)));
+    }
+
+    @Test
+    void testGetReadingsFilteredByCustomerOnly() throws SQLException {
+        var readings = ReadingRepository.getReadingsFiltered(customer.getId(), null, null, null);
+        assertNotNull(readings);
+        assertTrue(readings.stream().anyMatch(r -> r.getId().equals(reading.getId())));
+    }
+    @Test
+    void testGetReadingsFilteredByCustomerAndMeterType() throws SQLException {
+        var readings = ReadingRepository.getReadingsFiltered(customer.getId(), null, null, IReading.KindOfMeter.HEIZUNG);
+        assertNotNull(readings);
+        assertTrue(readings.stream().allMatch(r ->
+                r.getCustomer().getId().equals(customer.getId()) &&
+                        r.getKindOfMeter() == IReading.KindOfMeter.HEIZUNG));
+    }
+    @Test
+    void testGetReadingsFilteredByDateRange() throws SQLException {
+        LocalDate today = LocalDate.now();
+        var readings = ReadingRepository.getReadingsFiltered(customer.getId(), today.minusDays(1), today.plusDays(1), null);
+        assertNotNull(readings);
+        assertTrue(readings.stream().anyMatch(r -> r.getDateOfReading().equals(today)));
+    }
+
+
+
     @AfterEach
     void cleanUp() throws SQLException {
         MySQL.executeStatement("DELETE FROM readings;", null);

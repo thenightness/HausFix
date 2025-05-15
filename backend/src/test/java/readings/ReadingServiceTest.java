@@ -4,6 +4,7 @@ import customers.Customer;
 import customers.CustomerRepository;
 import database.DatabaseConnection;
 import database.MySQL;
+import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
 import modules.IReading;
 import org.junit.jupiter.api.*;
@@ -133,4 +134,78 @@ public class ReadingServiceTest {
         assertThrows(NotFoundException.class, () -> service.getReading(fakeId));
         System.out.println("✅ Ausnahme wie erwartet: NotFoundException");
     }
+    @Test
+    @Order(6)
+    void testCreateReadingWithNullCustomer_throwsException() {
+        Reading reading = new Reading();
+        reading.setCustomer(null);
+        reading.setMeterCount(100.0);
+        reading.setDateOfReading(LocalDate.now());
+        reading.setKindOfMeter(IReading.KindOfMeter.WASSER);
+        reading.setMeterId("M-NULL");
+
+        assertThrows(IllegalArgumentException.class, () -> service.createReading(reading));
+    }
+    @Test
+    @Order(7)
+    void testCreateReadingWithCustomerWithoutId_generatesCustomerId() {
+        Customer newCustomer = new Customer();
+        newCustomer.setFirstName("Generated");
+        newCustomer.setLastName("Customer");
+        newCustomer.setGender(Customer.Gender.W);
+        newCustomer.setBirthDate(LocalDate.of(1995, 5, 5));
+        newCustomer.setId(null); // Important for test
+
+        Reading reading = new Reading();
+        reading.setCustomer(newCustomer);
+        reading.setDateOfReading(LocalDate.now());
+        reading.setKindOfMeter(IReading.KindOfMeter.WASSER);
+        reading.setMeterCount(55.5);
+        reading.setMeterId("M-GEN");
+        reading.setSubstitute(false);
+        reading.setComment("No customer ID");
+
+        assertDoesNotThrow(() -> service.createReading(reading));
+        assertNotNull(reading.getCustomer().getId());
+        assertNotNull(reading.getId());
+    }
+    @Test
+    @Order(8)
+    void testUpdateReadingWithNullId_throwsNotFoundException() {
+        Reading reading = createTestReading();
+        reading.setId(null);
+
+        assertThrows(NotFoundException.class, () -> service.updateReading(reading));
+    }
+    @Test
+    @Order(9)
+    void testUpdateReadingWithBrokenData_throwsInternalServerError() throws SQLException {
+        Reading reading = createTestReading();
+        service.createReading(reading);
+
+        reading.setMeterId(null);
+
+        assertThrows(InternalServerErrorException.class, () -> service.updateReading(reading));
+    }
+    @Test
+    @Order(10)
+    void testDeleteReadingWithUnknownId_throwsNotFound() {
+        UUID unknownId = UUID.randomUUID();
+
+        assertThrows(NotFoundException.class, () -> service.deleteReading(unknownId));
+    }
+    @Test
+    @Order(11)
+    void testGetFilteredReadings() {
+        Reading reading = createTestReading();
+        service.createReading(reading);
+
+        LocalDate today = LocalDate.now();
+        List<Reading> filtered = service.getFilteredReadings(testCustomer.getId(), today.minusDays(1), today.plusDays(1), IReading.KindOfMeter.STROM);
+
+        assertFalse(filtered.isEmpty());
+        assertTrue(filtered.stream().anyMatch(r -> r.getMeterId().equals("M-123")));
+    }
+
+
 }

@@ -117,7 +117,7 @@ public class ReadingRepository {
         ResultSet rs = MySQL.executeSelect(query.toString(), parameters);
 
         List<Reading> readings = new ArrayList<>();
-        while (rs.next()) {
+        while (rs != null && rs.next()) {
             readings.add(mapResultSetToReading(rs));
         }
 
