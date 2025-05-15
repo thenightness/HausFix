@@ -17,31 +17,34 @@ public class ReadingService {
 
     public void createReading(Reading reading) {
         try {
-            // Prüfen ob customer vorhanden
+            // Validate customer
             if (reading.getCustomer() == null) {
                 throw new IllegalArgumentException("Customer must not be null");
             }
-            // ID setzen falls nicht vorhanden
+
+            // Set customer ID if missing
             if (reading.getCustomer().getId() == null) {
                 reading.getCustomer().setId(UUID.randomUUID());
             }
 
-            // Prüfen ob der customer bereits existiert, wenn nicht, neuen customer in DB einfügen
-            if (reading.getCustomer() != null && reading.getCustomer().getId() != null &&
-                    !CustomerRepository.exists(reading.getCustomer().getId())) {
+            // Create customer if not already in DB
+            if (!CustomerRepository.exists(reading.getCustomer().getId())) {
                 CustomerRepository.createCustomer((Customer) reading.getCustomer());
             }
-            // ReadingID setzen
+
+            // Set reading ID if missing
             if (reading.getId() == null) {
                 reading.setId(UUID.randomUUID());
             }
-            // 5. Reading speichern
+
+            // create the reading
             ReadingRepository.createReading(reading);
 
         } catch (SQLException e) {
             throw new InternalServerErrorException("Failed to create reading: ", e);
         }
     }
+
 
 
     public Reading getReading(UUID id) {
