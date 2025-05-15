@@ -42,21 +42,29 @@
 	}
 
 	async function loadReading() {
-		readings = (await getReading({customerInput, startDateInput, endDateInput, kindOfMeterInput})) ?? readings;
+		readings =
+			(await getReading({ customerInput, startDateInput, endDateInput, kindOfMeterInput })) ??
+			readings;
 	}
 	async function createReadingFromForm(form: SuperValidated<any>) {
 		let result = await createReading(form.data);
-		readings = (await getReading({customerInput, startDateInput, endDateInput, kindOfMeterInput})) ?? readings;
+		readings =
+			(await getReading({ customerInput, startDateInput, endDateInput, kindOfMeterInput })) ??
+			readings;
 		return result;
 	}
 	async function editReadingFromForm(item: Reading) {
 		let result = await updateReading(item);
-		readings = (await getReading({customerInput, startDateInput, endDateInput, kindOfMeterInput})) ?? readings;
+		readings =
+			(await getReading({ customerInput, startDateInput, endDateInput, kindOfMeterInput })) ??
+			readings;
 		return result;
 	}
 	async function deleteReadingFromForm(id: string) {
 		let result = await deleteReading(id);
-		readings = (await getReading({customerInput, startDateInput, endDateInput, kindOfMeterInput})) ?? readings;
+		readings =
+			(await getReading({ customerInput, startDateInput, endDateInput, kindOfMeterInput })) ??
+			readings;
 		return result;
 	}
 	const customerOptions = customers.map((customer) => ({

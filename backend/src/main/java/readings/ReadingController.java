@@ -82,9 +82,7 @@ public class ReadingController {
             }
 
             List<Reading> readings = readingService.getFilteredReadings(customerId, start, end, kindOfMeter);
-            Map<String, Object> result = new HashMap<>();
-            result.put("readings", readings);
-            return Response.ok(result).build();
+            return Response.ok(readings).build();
 
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST)

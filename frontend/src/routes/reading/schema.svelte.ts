@@ -3,10 +3,10 @@ import { Gender, KindOfMeter } from './types';
 
 const customerSchema = z.object({
 	id: z.string().uuid().optional(),
-	firstName: z.string(),
-	lastName: z.string(),
-	birthDate: z.string(),
-	gender: z.nativeEnum(Gender)
+	firstName: z.string().optional(),
+	lastName: z.string().optional(),
+	birthDate: z.string().optional(),
+	gender: z.nativeEnum(Gender).optional()
 });
 
 export const createSchema = z.object({
