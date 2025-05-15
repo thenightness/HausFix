@@ -39,7 +39,11 @@ public class CustomerDeserializer extends JsonDeserializer<Customer> {
 
             customer.setFirstName(node.get("firstName").asText());
             customer.setLastName(node.get("lastName").asText());
-            customer.setGender(Customer.Gender.valueOf(node.get("gender").asText()));
+            try {
+                customer.setGender(Customer.Gender.valueOf(node.get("gender").asText()));
+            } catch (IllegalArgumentException e) {
+                throw new JsonParseException(jsonParser, "Ungültiges Geschlecht: " + node.get("gender").asText(), e);
+            }
 
             if (node.has("birthDate") && !node.get("birthDate").isNull()) {
                 customer.setBirthDate(LocalDate.parse(node.get("birthDate").asText()));
