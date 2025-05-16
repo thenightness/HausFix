@@ -2,6 +2,7 @@ package readings;
 
 import customers.Customer;
 import customers.CustomerRepository;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
 import customers.CustomerRepository;
@@ -15,21 +16,16 @@ import java.util.UUID;
 
 public class ReadingService {
 
-    public void createReading(Reading reading) {
+    public UUID createReading(CreateableReading reading) {
         try {
-            // Validate customer
-            if (reading.getCustomer() == null) {
-                throw new IllegalArgumentException("Customer must not be null");
-            }
-
             // Set customer ID if missing
-            if (reading.getCustomer().getId() == null) {
-                reading.getCustomer().setId(UUID.randomUUID());
+            if (reading.getCustomerId() == null) {
+                reading.setCustomerId(UUID.randomUUID());
             }
 
             // Create customer if not already in DB
-            if (!CustomerRepository.exists(reading.getCustomer().getId())) {
-                CustomerRepository.createCustomer((Customer) reading.getCustomer());
+            if (!CustomerRepository.exists(reading.getCustomerId())) {
+                throw new BadRequestException("No customer: ");
             }
 
             // Set reading ID if missing
@@ -39,7 +35,7 @@ public class ReadingService {
 
             // create the reading
             ReadingRepository.createReading(reading);
-
+            return reading.getId();
         } catch (SQLException e) {
             throw new InternalServerErrorException("Failed to create reading: ", e);
         }

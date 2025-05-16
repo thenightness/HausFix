@@ -28,9 +28,9 @@ public class ReadingController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response handleCreateReading(Reading reading) {
-        readingService.createReading(reading);
-        return Response.status(Response.Status.CREATED).entity(reading).build();
+    public Response handleCreateReading(CreateableReading reading) {
+        Reading read = readingService.getReading(readingService.createReading(reading)) ;
+        return Response.status(Response.Status.CREATED).entity(read).build();
     }
 
     @GET
