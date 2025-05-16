@@ -7,7 +7,7 @@ import jakarta.ws.rs.NotFoundException;
 import modules.ICustomer;
 import modules.IReading;
 import org.junit.jupiter.api.*;
-import readings.Reading;
+import readings.CreateableReading;
 import readings.ReadingRepository;
 import response.DeletedCustomerResponse;
 
@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CustomerServiceTest {
 
     private final CustomerService service = new CustomerService();
@@ -29,7 +30,6 @@ class CustomerServiceTest {
         DatabaseConnection DBConnection = new DatabaseConnection();
         DBConnection.createAllTables();
 
-
         customer = new Customer();
         customer.setId(UUID.randomUUID());
         customer.setFirstName("Hugh");
@@ -39,6 +39,7 @@ class CustomerServiceTest {
     }
 
     @Test
+    @Order(1)
     void createCustomer_success() throws SQLException {
         service.createCustomer(customer);
         Customer result = CustomerRepository.getCustomer(customer.getId());
@@ -47,12 +48,14 @@ class CustomerServiceTest {
     }
 
     @Test
+    @Order(2)
     void createCustomer_alreadyExists_ThrowsBadRequest() throws SQLException {
         CustomerRepository.createCustomer(customer);
         assertThrows(BadRequestException.class, () -> service.createCustomer(customer));
     }
 
     @Test
+    @Order(3)
     void getCustomer_success() throws SQLException {
         CustomerRepository.createCustomer(customer);
         Customer result = service.getCustomer(customer.getId());
@@ -61,16 +64,19 @@ class CustomerServiceTest {
     }
 
     @Test
+    @Order(4)
     void getCustomer_nullId_ThrowsNotFound() {
         assertThrows(NotFoundException.class, () -> service.getCustomer(null));
     }
 
     @Test
+    @Order(5)
     void getCustomer_notFound_ThrowsNotFound() {
         assertThrows(NotFoundException.class, () -> service.getCustomer(UUID.randomUUID()));
     }
 
     @Test
+    @Order(6)
     void getAllCustomers_success() throws SQLException {
         CustomerRepository.createCustomer(customer);
         List<Customer> all = service.getAllCustomers();
@@ -78,6 +84,7 @@ class CustomerServiceTest {
     }
 
     @Test
+    @Order(7)
     void updateCustomer_success() throws SQLException {
         CustomerRepository.createCustomer(customer);
         customer.setFirstName("Updated");
@@ -89,26 +96,28 @@ class CustomerServiceTest {
     }
 
     @Test
+    @Order(8)
     void updateCustomer_nullId_ThrowsNotFound() {
         customer.setId(null);
         assertThrows(NotFoundException.class, () -> service.updateCustomer(customer));
     }
 
     @Test
+    @Order(9)
     void deleteCustomer_success() throws SQLException {
         CustomerRepository.createCustomer(customer);
 
-        Reading reading = new Reading();
+        CreateableReading reading = new CreateableReading();
         reading.setId(UUID.randomUUID());
         reading.setMeterCount(123.45);
         reading.setDateOfReading(LocalDate.now());
-        reading.setCustomer(customer); // Set FK to existing customer
+        reading.setCustomerId(customer.getId());
         reading.setKindOfMeter(IReading.KindOfMeter.STROM);
         reading.setSubstitute(false);
         reading.setComment("Test reading");
         reading.setMeterId("M123");
 
-        ReadingRepository.createReading(reading);
+        new readings.ReadingService().createReading(reading);
 
         DeletedCustomerResponse response = service.deleteCustomer(customer.getId());
 
@@ -124,15 +133,16 @@ class CustomerServiceTest {
         );
     }
 
-
     @Test
+    @Order(10)
     void deleteCustomer_notFound_ThrowsNotFound() {
         UUID unknownId = UUID.randomUUID();
         assertThrows(NotFoundException.class, () -> service.deleteCustomer(unknownId));
     }
 
     @Test
-    void deleteCustomer_sqlError_ThrowsInternalError() {
+    @Order(11)
+    void deleteCustomer_nullId_ThrowsIllegalArgumentException() {
         UUID invalid = null;
         assertThrows(IllegalArgumentException.class, () -> service.deleteCustomer(invalid));
     }

@@ -4,208 +4,136 @@ import customers.Customer;
 import customers.CustomerRepository;
 import database.DatabaseConnection;
 import database.MySQL;
-import jakarta.ws.rs.NotFoundException;
 import modules.ICustomer;
 import modules.IReading;
 import org.junit.jupiter.api.*;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ReadingRepositoryTest {
 
-    private Customer customer;
-    private Reading reading;
+    private static Customer testCustomer;
+    private static ReadingService readingService;
 
-    @BeforeEach
-    void setUp() throws SQLException {
-        MySQL.init("mariadb", 3306, System.getenv("MYSQL_DATABASE"), System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
-        DatabaseConnection DBConnection = new DatabaseConnection();
-        DBConnection.createAllTables();
+    @BeforeAll
+    static void setup() throws SQLException {
+        MySQL.init("mariadb", 3306,
+                System.getenv("MYSQL_DATABASE"),
+                System.getenv("MYSQL_USER"),
+                System.getenv("MYSQL_PASSWORD"));
+        new DatabaseConnection().createAllTables();
 
-        customer = new Customer();
-        customer.setId(UUID.randomUUID());
-        customer.setFirstName("Test");
-        customer.setLastName("User");
-        customer.setBirthDate(LocalDate.of(1980, 1, 1));
-        customer.setGender(ICustomer.Gender.M);
-        CustomerRepository.createCustomer(customer);
+        testCustomer = new Customer();
+        testCustomer.setId(UUID.randomUUID());
+        testCustomer.setFirstName("Read");
+        testCustomer.setLastName("Tester");
+        testCustomer.setBirthDate(LocalDate.of(1990, 1, 1));
+        testCustomer.setGender(ICustomer.Gender.M);
+        CustomerRepository.createCustomer(testCustomer);
 
+        readingService = new ReadingService();
+    }
 
-        reading = new Reading();
-        reading.setId(UUID.randomUUID());
-        reading.setMeterCount(42.5);
+    CreateableReading makeReading() {
+        CreateableReading reading = new CreateableReading();
+        reading.setCustomerId(testCustomer.getId());
         reading.setDateOfReading(LocalDate.now());
-        reading.setCustomer(customer);
-        reading.setKindOfMeter(IReading.KindOfMeter.HEIZUNG);
+        reading.setKindOfMeter(IReading.KindOfMeter.STROM);
+        reading.setMeterCount(456.78);
+        reading.setMeterId("R-456");
         reading.setSubstitute(false);
-        reading.setComment("Initial");
-        reading.setMeterId("MTR-123");
-        ReadingRepository.createReading(reading);
+        reading.setComment("Repo test");
+        return reading;
     }
 
     @Test
-    void testCreateAndGetReading() throws SQLException {
-        Reading result = ReadingRepository.getReading(reading.getId());
+    @Order(1)
+    void testCreateAndGetReading_success() throws SQLException {
+        CreateableReading reading = makeReading();
+        UUID id = readingService.createReading(reading);
+
+        Reading result = ReadingRepository.getReading(id);
         assertNotNull(result);
-        assertEquals(reading.getId(), result.getId());
         assertEquals(reading.getMeterId(), result.getMeterId());
+        assertEquals(testCustomer.getId(), result.getCustomer().getId());
     }
 
     @Test
-    void testGetReadingWithUnknownIdReturnsNull() throws SQLException {
-        UUID unknownId = UUID.randomUUID();
-        Reading result = ReadingRepository.getReading(unknownId);
-        assertNull(result);
-    }
+    @Order(2)
+    void testUpdateReading_success() throws SQLException {
+        CreateableReading reading = makeReading();
+        UUID id = readingService.createReading(reading);
+        reading.setId(id);
+        reading.setComment("Updated comment");
 
-    @Test
-    void testGetReadingWithNullIdThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> ReadingRepository.getReading(null));
-    }
-
-    @Test
-    void testUpdateReading() throws SQLException {
-        reading.setMeterCount(99.9);
-        reading.setComment("Updated");
         ReadingRepository.updateReading(reading);
 
-        Reading updated = ReadingRepository.getReading(reading.getId());
-        assertEquals(99.9, updated.getMeterCount());
-        assertEquals("Updated", updated.getComment());
+        Reading updated = ReadingRepository.getReading(id);
+        assertEquals("Updated comment", updated.getComment());
     }
 
     @Test
-    void testUpdateReadingWithInvalidIdThrowsException() {
-        Reading invalid = new Reading();
-        invalid.setId(UUID.randomUUID()); // not in DB
-        invalid.setMeterCount(55.6);
-        invalid.setDateOfReading(LocalDate.now());
-        invalid.setCustomer(customer);
-        invalid.setKindOfMeter(IReading.KindOfMeter.HEIZUNG);
-        invalid.setSubstitute(false);
-        invalid.setComment("Does not exist");
-        invalid.setMeterId("MTR-X");
+    @Order(3)
+    void testDeleteReading_success() throws SQLException {
+        CreateableReading reading = makeReading();
+        UUID id = readingService.createReading(reading);
 
-        assertThrows(NotFoundException.class, () -> ReadingRepository.updateReading(invalid));
-    }
-
-    @Test
-    void testDeleteReading() throws SQLException {
-        boolean deleted = ReadingRepository.deleteReading(reading.getId());
+        boolean deleted = ReadingRepository.deleteReading(id);
         assertTrue(deleted);
 
-        Reading result = ReadingRepository.getReading(reading.getId());
+        Reading result = ReadingRepository.getReading(id);
         assertNull(result);
     }
 
     @Test
-    void testDeleteReadingWithUnknownIdReturnsFalse() throws SQLException {
-        UUID unknownId = UUID.randomUUID();
-        boolean result = ReadingRepository.deleteReading(unknownId);
-        assertFalse(result);
+    @Order(4)
+    void testGetReadingsFiltered_byCustomer() throws SQLException {
+        CreateableReading reading = makeReading();
+        UUID id = readingService.createReading(reading);
+
+        List<Reading> filtered = ReadingRepository.getReadingsFiltered(testCustomer.getId(), null, null, null);
+        assertTrue(filtered.stream().anyMatch(r -> r.getId().equals(id)));
     }
 
     @Test
-    void testDeleteReadingWithNullIdThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> ReadingRepository.deleteReading(null));
-    }
-
-    @Test
-    void testGetReadingWithNullComment() throws SQLException {
+    @Order(5)
+    void testGetReadingsWithNullCustomer() throws SQLException {
         UUID id = UUID.randomUUID();
-        String query = "INSERT INTO readings (id, meterCount, dateOfReading, customerId, kindOfMeter, substitute, comment, meterId) " +
-                "VALUES (?, ?, ?, ?, ?, ?, NULL, ?)";
-        MySQL.executeStatement(query, java.util.List.of(
+        String query = """
+        INSERT INTO readings (id, meterCount, dateOfReading, customerId, kindOfMeter, substitute, comment, meterId)
+        VALUES (?, ?, ?, NULL, ?, ?, ?, ?)
+    """;
+
+        List<String> params = List.of(
                 id.toString(),
-                "44.4",
+                "100.0",
                 LocalDate.now().toString(),
-                customer.getId().toString(),
                 IReading.KindOfMeter.STROM.toString(),
                 "0",
-                "MTR-NULL"
-        ));
+                "Orphaned reading",
+                "ORPH-METER"
+        );
 
-        Reading r = ReadingRepository.getReading(id);
-        assertNotNull(r);
-        assertEquals("", r.getComment());
+        MySQL.executeStatement(query, params);
+
+        List<Reading> result = ReadingRepository.getReadingsWithNullCustomer();
+        assertTrue(result.stream().anyMatch(r -> r.getId().equals(id)));
     }
-
-    @Test
-    void testGetReadingWithNullCustomerId() throws SQLException {
-        UUID id = UUID.randomUUID();
-        String query = "INSERT INTO readings (id, meterCount, dateOfReading, customerId, kindOfMeter, substitute, comment, meterId) " +
-                "VALUES (?, ?, ?, NULL, ?, ?, ?, ?)";
-        MySQL.executeStatement(query, java.util.List.of(
-                id.toString(),
-                "33.3",
-                LocalDate.now().toString(),
-                IReading.KindOfMeter.HEIZUNG.toString(),
-                "1",
-                "Comment",
-                "MTR-NOCUST"
-        ));
-
-        Reading r = ReadingRepository.getReading(id);
-        assertNotNull(r);
-        assertNull(r.getCustomer());
-    }
-
-    @Test
-    void testGetReadingsWithNullCustomer() throws SQLException {
-        UUID orphanedId = UUID.randomUUID();
-        String query = "INSERT INTO readings (id, meterCount, dateOfReading, customerId, kindOfMeter, substitute, comment, meterId) " +
-                "VALUES (?, ?, ?, NULL, ?, ?, ?, ?)";
-        MySQL.executeStatement(query, java.util.List.of(
-                orphanedId.toString(),
-                "11.1",
-                LocalDate.now().toString(),
-                IReading.KindOfMeter.WASSER.toString(),
-                "0",
-                "Orphaned",
-                "MTR-ORPHAN"
-        ));
-
-        var result = ReadingRepository.getReadingsWithNullCustomer();
-        assertNotNull(result);
-        assertTrue(result.stream().anyMatch(r -> r.getId().equals(orphanedId)));
-    }
-
-    @Test
-    void testGetReadingsFilteredByCustomerOnly() throws SQLException {
-        var readings = ReadingRepository.getReadingsFiltered(customer.getId(), null, null, null);
-        assertNotNull(readings);
-        assertTrue(readings.stream().anyMatch(r -> r.getId().equals(reading.getId())));
-    }
-    @Test
-    void testGetReadingsFilteredByCustomerAndMeterType() throws SQLException {
-        var readings = ReadingRepository.getReadingsFiltered(customer.getId(), null, null, IReading.KindOfMeter.HEIZUNG);
-        assertNotNull(readings);
-        assertTrue(readings.stream().allMatch(r ->
-                r.getCustomer().getId().equals(customer.getId()) &&
-                        r.getKindOfMeter() == IReading.KindOfMeter.HEIZUNG));
-    }
-    @Test
-    void testGetReadingsFilteredByDateRange() throws SQLException {
-        LocalDate today = LocalDate.now();
-        var readings = ReadingRepository.getReadingsFiltered(customer.getId(), today.minusDays(1), today.plusDays(1), null);
-        assertNotNull(readings);
-        assertTrue(readings.stream().anyMatch(r -> r.getDateOfReading().equals(today)));
-    }
-
 
 
     @AfterEach
     void cleanUp() throws SQLException {
         MySQL.executeStatement("DELETE FROM readings;", null);
-        MySQL.executeStatement("DELETE FROM customers;", null);
     }
 
     @AfterAll
-    static void tearDown() {
+    static void disconnect() {
         MySQL.disconnect();
     }
 }

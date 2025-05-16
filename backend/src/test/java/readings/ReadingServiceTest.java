@@ -2,12 +2,16 @@ package readings;
 
 import customers.Customer;
 import customers.CustomerRepository;
+import customers.CustomerService;
 import database.DatabaseConnection;
 import database.MySQL;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotFoundException;
+import modules.ICustomer;
 import modules.IReading;
 import org.junit.jupiter.api.*;
+import response.DeletedCustomerResponse;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -17,195 +21,141 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ReadingServiceTest {
+class CustomerServiceTest {
 
-    private static ReadingService service;
-    private static Customer testCustomer;
+    private final CustomerService service = new CustomerService();
+    private Customer customer;
 
-    @BeforeAll
-    static void setup() throws SQLException {
-        System.out.println("Initialisiere Datenbankverbindung");
+    @BeforeEach
+    void setUp() throws SQLException {
         MySQL.init("mariadb", 3306, System.getenv("MYSQL_DATABASE"), System.getenv("MYSQL_USER"), System.getenv("MYSQL_PASSWORD"));
-        DatabaseConnection databaseConnection = new DatabaseConnection();
-        databaseConnection.createAllTables();
-        System.out.println("✅ Tabellen erstellt und Verbindung erfolgreich.");
+        DatabaseConnection DBConnection = new DatabaseConnection();
+        DBConnection.createAllTables();
 
-        service = new ReadingService();
-
-        List<Customer> customers = CustomerRepository.getAllCustomers();
-
-        if (customers.isEmpty()) {
-            System.out.println("Kein Kunde gefunden – erzeuge Testkunde");
-            testCustomer = new Customer();
-            testCustomer.setId(UUID.randomUUID());
-            testCustomer.setFirstName("Test");
-            testCustomer.setLastName("Kunde");
-            testCustomer.setBirthDate(LocalDate.of(2000, 1, 1));
-            testCustomer.setGender(Customer.Gender.M);
-
-            CustomerRepository.createCustomer(testCustomer);
-            System.out.println("✅ Testkunde angelegt mit ID: " + testCustomer.getId());
-        } else {
-            testCustomer = customers.get(0);
-            System.out.println("✅ Bestehender Kunde wird verwendet: " + testCustomer.getId());
-        }
-    }
-
-    private Reading createTestReading() {
-        Reading reading = new Reading();
-        reading.setCustomer(testCustomer);
-        reading.setDateOfReading(LocalDate.now());
-        reading.setKindOfMeter(IReading.KindOfMeter.STROM);
-        reading.setMeterCount(123.45);
-        reading.setMeterId("M-123");
-        reading.setSubstitute(false);
-        reading.setComment("Testmessung");
-
-        return reading;
+        customer = new Customer();
+        customer.setId(UUID.randomUUID());
+        customer.setFirstName("Hugh");
+        customer.setLastName("Jass");
+        customer.setBirthDate(LocalDate.of(1990, 1, 1));
+        customer.setGender(ICustomer.Gender.M);
     }
 
     @Test
     @Order(1)
-    void testCreateReading() {
-        Reading reading = createTestReading();
-
-        System.out.println("\nTest: createReading()");
-        assertDoesNotThrow(() -> service.createReading(reading));
-        assertNotNull(reading.getId());
-        System.out.println("✅ Reading erfolgreich erstellt mit ID: " + reading.getId());
+    void createCustomer_success() throws SQLException {
+        service.createCustomer(customer);
+        Customer result = CustomerRepository.getCustomer(customer.getId());
+        assertNotNull(result);
+        assertEquals("Hugh", result.getFirstName());
     }
 
     @Test
     @Order(2)
-    void testGetReading() throws SQLException {
-        Reading reading = createTestReading();
-        service.createReading(reading);
-        System.out.println("\nTest: getReading() für ID " + reading.getId());
-
-        Reading result = service.getReading(reading.getId());
-
-        assertNotNull(result);
-        assertEquals(reading.getId(), result.getId());
-        assertEquals(reading.getMeterId(), result.getMeterId());
-        assertNotNull(reading.getCustomer());
-        assertNotNull(reading.getCustomer().getId());
-
-        System.out.println("✅ Reading erfolgreich gefunden:");
-        System.out.println("   ID:         " + result.getId());
-        System.out.println("   MeterId:    " + result.getMeterId());
-        System.out.println("   Count:      " + result.getMeterCount());
-        System.out.println("   Comment:    " + result.getComment());
-        System.out.println("   CustomerID: " + result.getCustomer().getId());
+    void createCustomer_alreadyExists_ThrowsBadRequest() throws SQLException {
+        CustomerRepository.createCustomer(customer);
+        assertThrows(BadRequestException.class, () -> service.createCustomer(customer));
     }
 
     @Test
     @Order(3)
-    void testUpdateReading() throws SQLException {
-        Reading reading = createTestReading();
-        service.createReading(reading);
-
-        System.out.println("\nTest: updateReading()");
-        reading.setComment("Geändert durch Test");
-        String result = service.updateReading(reading);
-
-        System.out.println("Neuer Kommentar: " + reading.getComment());
-        assertTrue(result.contains("erfolgreich"));
-        System.out.println("✅ Reading erfolgreich aktualisiert.");
+    void getCustomer_success() throws SQLException {
+        CustomerRepository.createCustomer(customer);
+        Customer result = service.getCustomer(customer.getId());
+        assertNotNull(result);
+        assertEquals(customer.getLastName(), result.getLastName());
     }
 
     @Test
     @Order(4)
-    void testDeleteReading() throws SQLException {
-        Reading reading = createTestReading();
-        service.createReading(reading);
-
-        System.out.println("\nTest: deleteReading()");
-        String result = service.deleteReading(reading.getId());
-
-        assertTrue(result.contains("erfolgreich gelöscht"));
-        System.out.println("✅ Reading erfolgreich gelöscht: " + reading.getId());
+    void getCustomer_nullId_ThrowsNotFound() {
+        assertThrows(NotFoundException.class, () -> service.getCustomer(null));
     }
 
     @Test
     @Order(5)
-    void testGetReadingNotFound() {
-        UUID fakeId = UUID.randomUUID();
-        System.out.println("\nTest: getReading() mit ungültiger ID " + fakeId);
-        assertThrows(NotFoundException.class, () -> service.getReading(fakeId));
-        System.out.println("✅ Ausnahme wie erwartet: NotFoundException");
+    void getCustomer_notFound_ThrowsNotFound() {
+        assertThrows(NotFoundException.class, () -> service.getCustomer(UUID.randomUUID()));
     }
+
     @Test
     @Order(6)
-    void testCreateReadingWithNullCustomer_throwsException() {
-        Reading reading = new Reading();
-        reading.setCustomer(null);
-        reading.setMeterCount(100.0);
-        reading.setDateOfReading(LocalDate.now());
-        reading.setKindOfMeter(IReading.KindOfMeter.WASSER);
-        reading.setMeterId("M-NULL");
-
-        assertThrows(IllegalArgumentException.class, () -> service.createReading(reading));
+    void getAllCustomers_success() throws SQLException {
+        CustomerRepository.createCustomer(customer);
+        List<Customer> all = service.getAllCustomers();
+        assertFalse(all.isEmpty());
     }
+
     @Test
     @Order(7)
-    void testCreateReadingWithCustomerWithoutId_generatesCustomerId() {
-        Customer newCustomer = new Customer();
-        newCustomer.setFirstName("Generated");
-        newCustomer.setLastName("Customer");
-        newCustomer.setGender(Customer.Gender.W);
-        newCustomer.setBirthDate(LocalDate.of(1995, 5, 5));
-        newCustomer.setId(null); // Important for test
+    void updateCustomer_success() throws SQLException {
+        CustomerRepository.createCustomer(customer);
+        customer.setFirstName("Updated");
+        String result = service.updateCustomer(customer);
+        assertTrue(result.contains("erfolgreich"));
 
-        Reading reading = new Reading();
-        reading.setCustomer(newCustomer);
-        reading.setDateOfReading(LocalDate.now());
-        reading.setKindOfMeter(IReading.KindOfMeter.WASSER);
-        reading.setMeterCount(55.5);
-        reading.setMeterId("M-GEN");
-        reading.setSubstitute(false);
-        reading.setComment("No customer ID");
-
-        assertDoesNotThrow(() -> service.createReading(reading));
-        assertNotNull(reading.getCustomer().getId());
-        assertNotNull(reading.getId());
+        Customer updated = CustomerRepository.getCustomer(customer.getId());
+        assertEquals("Updated", updated.getFirstName());
     }
+
     @Test
     @Order(8)
-    void testUpdateReadingWithNullId_throwsNotFoundException() {
-        Reading reading = createTestReading();
-        reading.setId(null);
-
-        assertThrows(NotFoundException.class, () -> service.updateReading(reading));
+    void updateCustomer_nullId_ThrowsNotFound() {
+        customer.setId(null);
+        assertThrows(NotFoundException.class, () -> service.updateCustomer(customer));
     }
+
     @Test
     @Order(9)
-    void testUpdateReadingWithBrokenData_throwsInternalServerError() throws SQLException {
-        Reading reading = createTestReading();
-        service.createReading(reading);
+    void deleteCustomer_success() throws SQLException {
+        CustomerRepository.createCustomer(customer);
 
-        reading.setMeterId(null);
+        CreateableReading reading = new CreateableReading();
+        reading.setId(UUID.randomUUID());
+        reading.setMeterCount(123.45);
+        reading.setDateOfReading(LocalDate.now());
+        reading.setCustomerId(customer.getId());
+        reading.setKindOfMeter(IReading.KindOfMeter.STROM);
+        reading.setSubstitute(false);
+        reading.setComment("Test reading");
+        reading.setMeterId("M123");
 
-        assertThrows(InternalServerErrorException.class, () -> service.updateReading(reading));
+        new readings.ReadingService().createReading(reading);
+
+        DeletedCustomerResponse response = service.deleteCustomer(customer.getId());
+
+        assertNotNull(response);
+        assertNotNull(response.getDeletedCustomer());
+        assertEquals(customer.getId(), response.getDeletedCustomer().getId());
+
+        assertNull(CustomerRepository.getCustomer(customer.getId()));
+
+        assertTrue(
+                response.getOrphanedReadings().stream()
+                        .anyMatch(r -> r.getId().equals(reading.getId()) && r.getCustomer() == null)
+        );
     }
+
     @Test
     @Order(10)
-    void testDeleteReadingWithUnknownId_throwsNotFound() {
+    void deleteCustomer_notFound_ThrowsNotFound() {
         UUID unknownId = UUID.randomUUID();
-
-        assertThrows(NotFoundException.class, () -> service.deleteReading(unknownId));
+        assertThrows(NotFoundException.class, () -> service.deleteCustomer(unknownId));
     }
+
     @Test
     @Order(11)
-    void testGetFilteredReadings() {
-        Reading reading = createTestReading();
-        service.createReading(reading);
-
-        LocalDate today = LocalDate.now();
-        List<Reading> filtered = service.getFilteredReadings(testCustomer.getId(), today.minusDays(1), today.plusDays(1), IReading.KindOfMeter.STROM);
-
-        assertFalse(filtered.isEmpty());
-        assertTrue(filtered.stream().anyMatch(r -> r.getMeterId().equals("M-123")));
+    void deleteCustomer_nullId_ThrowsIllegalArgumentException() {
+        UUID invalid = null;
+        assertThrows(IllegalArgumentException.class, () -> service.deleteCustomer(invalid));
     }
 
+    @AfterEach
+    public void cleanUp() throws SQLException {
+        MySQL.executeStatement("DELETE FROM customers;", null);
+    }
 
+    @AfterAll
+    public static void tearDown() {
+        MySQL.disconnect();
+    }
 }

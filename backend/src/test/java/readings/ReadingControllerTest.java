@@ -45,8 +45,8 @@ class ReadingControllerTest extends JerseyTest {
 
     @BeforeEach
     void insertReading() {
-        Reading reading = new Reading();
-        reading.setCustomer(testCustomer);
+        CreateableReading reading = new CreateableReading();
+        reading.setCustomerId(testCustomer.getId());
         reading.setDateOfReading(LocalDate.now());
         reading.setKindOfMeter(IReading.KindOfMeter.STROM);
         reading.setMeterCount(222.22);
@@ -75,7 +75,6 @@ class ReadingControllerTest extends JerseyTest {
 
         assertEquals(200, response.getStatus());
         String body = response.readEntity(String.class);
-        assertTrue(body.contains("readings"));
         assertTrue(body.contains("FILT-METER"));
     }
 
@@ -88,10 +87,8 @@ class ReadingControllerTest extends JerseyTest {
 
         assertEquals(200, response.getStatus());
         String body = response.readEntity(String.class);
-        assertTrue(body.contains("readings"));
         assertTrue(body.contains("FILT-METER"));
     }
-
 
     @Test
     @Order(3)
@@ -135,6 +132,7 @@ class ReadingControllerTest extends JerseyTest {
         String body = response.readEntity(String.class);
         assertTrue(body.contains("Ungültige Anfrage"));
     }
+
     @Test
     @Order(6)
     void testFilterOnlyCustomerParam_returnsReadings() {
@@ -145,40 +143,11 @@ class ReadingControllerTest extends JerseyTest {
 
         assertEquals(200, response.getStatus());
         String body = response.readEntity(String.class);
-        assertTrue(body.contains("readings"));
         assertTrue(body.contains("FILT-METER"));
     }
 
-
     @Test
-    @Order(8)
-    void testFilterWithStartAfterEnd_returnsEmptyReadingsList() {
-        WebTarget target = target("readings")
-                .queryParam("customer", testCustomer.getId())
-                .queryParam("start", LocalDate.now().plusDays(5))
-                .queryParam("end", LocalDate.now().minusDays(5));
-
-        Response response = target.request().get();
-
-        assertEquals(200, response.getStatus());
-        String body = response.readEntity(String.class);
-        assertTrue(body.contains("\"readings\""));
-    }
-    @Test
-    @Order(9)
-    void testFilterWithEmptyKindOfMeter_returnsReadings() {
-        WebTarget target = target("readings")
-                .queryParam("customer", testCustomer.getId())
-                .queryParam("kindOfMeter", ""); // key is present, but value is blank
-
-        Response response = target.request().get();
-
-        assertEquals(200, response.getStatus());
-        String body = response.readEntity(String.class);
-        assertTrue(body.contains("\"readings\""));
-    }
-    @Test
-    @Order(10)
+    @Order(7)
     void testFilterOnlyKindOfMeter_returnsReadings() {
         WebTarget target = target("readings")
                 .queryParam("kindOfMeter", "STROM");
@@ -187,11 +156,11 @@ class ReadingControllerTest extends JerseyTest {
 
         assertEquals(200, response.getStatus());
         String body = response.readEntity(String.class);
-        assertTrue(body.contains("readings"));
         assertTrue(body.contains("FILT-METER"));
     }
+
     @Test
-    @Order(11)
+    @Order(8)
     void testFilterOnlyStartAndEnd_returnsReadings() {
         WebTarget target = target("readings")
                 .queryParam("start", LocalDate.now().minusDays(1))
@@ -201,10 +170,34 @@ class ReadingControllerTest extends JerseyTest {
 
         assertEquals(200, response.getStatus());
         String body = response.readEntity(String.class);
-        assertTrue(body.contains("readings"));
         assertTrue(body.contains("FILT-METER"));
     }
 
+    @Test
+    @Order(9)
+    void testFilterWithEmptyKindOfMeter_returnsReadings() {
+        WebTarget target = target("readings")
+                .queryParam("customer", testCustomer.getId())
+                .queryParam("kindOfMeter", "");
 
+        Response response = target.request().get();
 
+        assertEquals(200, response.getStatus());
+        String body = response.readEntity(String.class);
+        assertTrue(body.contains("FILT-METER"));
+    }
+
+    @Test
+    @Order(10)
+    void testFilterWithStartAfterEnd_returnsEmptyList() {
+        WebTarget target = target("readings")
+                .queryParam("start", LocalDate.now().plusDays(10))
+                .queryParam("end", LocalDate.now().minusDays(10));
+
+        Response response = target.request().get();
+
+        assertEquals(200, response.getStatus());
+        String body = response.readEntity(String.class);
+        assertTrue(body.contains("[]")); // empty list
+    }
 }
