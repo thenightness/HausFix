@@ -22,3 +22,14 @@ export interface Read {
 	meterId: string;
 	substitute: boolean;
 }
+
+export interface Reader {
+	id: string;
+	comment: string;
+	customerId: string;
+	dateOfReading: string;
+	kindOfMeter: string;
+	meterCount: number;
+	meterId: string;
+	substitute: boolean;
+}

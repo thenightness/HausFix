@@ -3,9 +3,9 @@ import { post, get, put, deletee } from '$lib/backend/util.svelte';
 import { createCustom, createCustomer } from '../../routes/customer/backendRequest';
 import { Gender, type Customer } from '../../routes/customer/types';
 import loadCustomer from '../../routes/customer/+page.svelte';
-import { createRead, getReading } from '../../routes/reading/backendRequest';
+import { createRead, createReader, getReading } from '../../routes/reading/backendRequest';
 import type { Reading } from '../../routes/reading/types';
-import type { Custom, Read } from './types';
+import type { Custom, Read, Reader } from './types';
 
 export async function downloadCustomer() {
 	let result = await get<Customer[]>('/customers', ResponseType.Json);
@@ -17,6 +17,7 @@ export async function downloadCustomer() {
 
 export async function downloadReading() {
 	let result = await get<Reading[]>('/readings', ResponseType.Json);
+	console.log(result)
 	if (Array.isArray(result)) {
 		readingsToCsvAndDownload(result);
 	}
@@ -61,53 +62,39 @@ function readingsToCsvAndDownload(readings: Reading[], filename: string = 'readi
 		'ID',
 		'Kommentar',
 		'Kunden-ID',
-		'Vorname',
-		'Nachname',
-		'Geburtsdatum',
-		'Geschlecht',
 		'Datum der Ablesung',
 		'Zählertyp',
 		'Zählerstand',
 		'Zähler-ID',
 		'Ersatzwert'
 	];
-	console.log(1);
+	console.log(readings);
 	// 2. Map the Reading objects to CSV rows
 	const csvRows = readings.map((reading) => [
 		reading.id,
 		reading.comment,
 		reading.customer.id,
-		reading.customer.firstName,
-		reading.customer.lastName,
-		reading.customer.birthDate.toLocaleDateString(), // Format date as needed
-		reading.customer.gender,
-		reading.dateOfReading.toLocaleDateString(), // Format date as needed
+		reading.dateOfReading,
 		reading.kindOfMeter,
 		reading.meterCount.toString(),
 		reading.meterId,
 		reading.substitute.toString()
 	]);
-	console.log(2);
 	// 3. Combine header and data rows
 	const csvString = [header.join(','), ...csvRows.map((row) => row.join(','))].join('\n');
-	console.log(3);
 	// 4. Create a Blob
 	const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-	console.log(4);
 	// 5. Create a temporary link
 	const link = document.createElement('a');
 	const url = URL.createObjectURL(blob);
 	link.href = url;
 	link.download = filename;
 	document.body.appendChild(link);
-	console.log(5);
 	// 6. Trigger the download
 	link.click();
-	console.log(6);
 	// 7. Clean up
 	document.body.removeChild(link);
 	URL.revokeObjectURL(url);
-	console.log(7);
 }
 
 export async function parseCsvToCustomer(text: string) {
@@ -138,30 +125,24 @@ export async function parseCsvToReading(text: string) {
 	let readings = await getReadingFromCsv(text);
 	readings.forEach((value) => {
 		console.log(value);
-		createRead(value);
+		createReader(value);
 	});
 	loadCustomer;
 }
 export async function getReadingFromCsv(text: string) {
 	const rows = text.trim().split('\n');
 	const header = rows.shift()?.split(',') || [];
-	const readings: Read[] = rows.map((row) => {
+	const readings: Reader[] = rows.map((row) => {
 		const values = row.split(',');
-		const reading: Read = {
+		const reading: Reader = {
 			id: values[0],
 			comment: values[1],
-			customer: {
-				id: values[2],
-				firstName: values[3],
-				lastName: values[4],
-				birthDate: values[5],
-				gender: values[6],
-			},
-			dateOfReading: values[7],
-			kindOfMeter: values[8],
-			meterCount: parseInt(values[9]),
-			meterId: values[10],
-			substitute: !!values[11],
+			customerId: values[2],
+			dateOfReading: values[3],
+			kindOfMeter: values[4],
+			meterCount: parseInt(values[5]),
+			meterId: values[6],
+			substitute: !!values[7]
 		};
 		return reading;
 	});
