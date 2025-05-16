@@ -17,6 +17,7 @@ export async function downloadCustomer() {
 
 export async function downloadReading() {
 	let result = await get<Reading[]>('/readings', ResponseType.Json);
+	console.log("result:",result)
 	if (Array.isArray(result)) {
 		readingsToCsvAndDownload(result);
 	}
@@ -71,7 +72,7 @@ function readingsToCsvAndDownload(readings: Reading[], filename: string = 'readi
 		'Zähler-ID',
 		'Ersatzwert'
 	];
-	console.log(1);
+
 	// 2. Map the Reading objects to CSV rows
 	const csvRows = readings.map((reading) => [
 		reading.id,
@@ -79,35 +80,35 @@ function readingsToCsvAndDownload(readings: Reading[], filename: string = 'readi
 		reading.customer.id,
 		reading.customer.firstName,
 		reading.customer.lastName,
-		reading.customer.birthDate.toLocaleDateString(), // Format date as needed
+		reading.customer.birthDate, // Format date as needed
 		reading.customer.gender,
-		reading.dateOfReading.toLocaleDateString(), // Format date as needed
+		reading.dateOfReading, // Format date as needed
 		reading.kindOfMeter,
 		reading.meterCount.toString(),
 		reading.meterId,
 		reading.substitute.toString()
 	]);
-	console.log(2);
+
 	// 3. Combine header and data rows
 	const csvString = [header.join(','), ...csvRows.map((row) => row.join(','))].join('\n');
-	console.log(3);
+
 	// 4. Create a Blob
 	const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-	console.log(4);
+
 	// 5. Create a temporary link
 	const link = document.createElement('a');
 	const url = URL.createObjectURL(blob);
 	link.href = url;
 	link.download = filename;
 	document.body.appendChild(link);
-	console.log(5);
+
 	// 6. Trigger the download
 	link.click();
-	console.log(6);
+
 	// 7. Clean up
 	document.body.removeChild(link);
 	URL.revokeObjectURL(url);
-	console.log(7);
+
 }
 
 export async function parseCsvToCustomer(text: string) {
@@ -137,7 +138,7 @@ export async function getCustomersFromCsv(text: string) {
 export async function parseCsvToReading(text: string) {
 	let readings = await getReadingFromCsv(text);
 	readings.forEach((value) => {
-		console.log(value);
+		console.log("csvToReading:",value);
 		createRead(value);
 	});
 	loadCustomer;
