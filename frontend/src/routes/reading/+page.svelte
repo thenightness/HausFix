@@ -101,7 +101,7 @@
 		<Button class="mr-2 max-w-full" onclick={loadReading}>Filtern</Button>
 	{/snippet}
 	{#snippet createDialog({ props })}
-		<FormInput label="Customer ID" placeholder="ID-Number" key="customer.id" {...props} />
+		<FormInput label="Customer ID" placeholder="ID-Number" key="customerId" {...props} />
 		<FormInput label="Comment" placeholder="Add a comment" key="comment" {...props} />
 		<FormInput label="Date Of Reading" placeholder="YYYY-MM-DD" key="dateOfReading" {...props} />
 		<FormInput
