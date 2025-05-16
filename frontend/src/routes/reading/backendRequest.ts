@@ -26,12 +26,7 @@ export async function getReading(
 		);
 		
 		if (Array.isArray(result)) {
-			return result.map(item => {
-				return {
-					...item,
-					customerId: item.customer.id
-				}
-			});
+			return result.map(item => ({    ...item,    customerId: item.customer?.id ?? null}));
 		}
 	}
 }
