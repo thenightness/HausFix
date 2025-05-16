@@ -24,8 +24,8 @@ export enum Gender {
 }
 
 export enum KindOfMeter{
-	HEIZUNG,
-	STROM,
-	UNBEKANNT,
-	WASSER
+	HEIZUNG = 'HEIZUNG',
+	STROM = 'STROM',
+	UNBEKANNT = 'UNBEKANNT',
+	WASSER = 'WASSER'
 }

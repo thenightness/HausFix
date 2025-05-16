@@ -20,7 +20,10 @@ export async function getReading(
 ): Promise<any> {
 	if (props) {
 		let { customerInput, startDateInput, endDateInput, kindOfMeterInput } = props;
-		let result = await get<Reading[]>(`/readings?customer=${customerInput}&start=${startDateInput}&end=${endDateInput}&kindOfMeter=${kindOfMeterInput}`, ResponseType.Json);
+		let result = await get<Reading[]>(
+			`/readings?customer=${customerInput}&start=${startDateInput}&end=${endDateInput}&kindOfMeter=${kindOfMeterInput}`,
+			ResponseType.Json
+		);
 		if (Array.isArray(result)) {
 			return result;
 		}

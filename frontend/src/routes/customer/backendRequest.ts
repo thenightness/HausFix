@@ -4,26 +4,41 @@ import type { Customer } from './types';
 import { type Custom } from '../../lib/util/types';
 
 export async function getCustomer() {
-    let result = await get<Customer[]>('/customers', ResponseType.Json);
-    if (Array.isArray(result)) {
-        return result;
-    }
+	let result = await get<Customer[]>('/customers', ResponseType.Json);
+	if (Array.isArray(result)) {
+		return result;
+	}
 }
-export async function createCustomer(item: Customer){
-    let result = await post<Customer>('/customers', ResponseType.Json, ContentType.Json, JSON.stringify(item));
-    if(typeof result !== 'object'){
-        return result;
-    }
+export async function createCustomer(item: Customer) {
+	let result = await post<Customer>(
+		'/customers',
+		ResponseType.Json,
+		ContentType.Json,
+		JSON.stringify(item)
+	);
+	if (typeof result !== 'object') {
+		return result;
+	}
 }
-export async function createCustom(item: Custom){
-    let result = await post<Customer>('/customers', ResponseType.Json, ContentType.Json, JSON.stringify(item));
-    if(typeof result !== 'object'){
-        return result;
-    }
+export async function createCustom(item: Custom) {
+	let result = await post<Customer>(
+		'/customers',
+		ResponseType.Json,
+		ContentType.Json,
+		JSON.stringify(item)
+	);
+	if (typeof result !== 'object') {
+		return result;
+	}
 }
-export async function updateCustomer(item: Customer){
-    return await put<undefined>('/customers', ResponseType.None, ContentType.Json, JSON.stringify(item));
+export async function updateCustomer(item: Customer) {
+	return await put<undefined>(
+		'/customers',
+		ResponseType.None,
+		ContentType.Json,
+		JSON.stringify(item)
+	);
 }
-export async function deleteCustomer(id: string){
-    return await deletee<undefined>(`/customers/${id}`, ResponseType.None, undefined);
+export async function deleteCustomer(id: string) {
+	return await deletee<undefined>(`/customers/${id}`, ResponseType.None, undefined);
 }
