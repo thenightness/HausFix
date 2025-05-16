@@ -119,4 +119,24 @@
 		/>
 		<FormInput label="Meter-ID" placeholder="Meter identifier" key="meterId" {...props} />
 	{/snippet}
+	{#snippet editDialog({ props, item })}
+		<FormInput label="Reading ID" placeholder="ID-Number" key="id" {...props} />
+		<FormInput label="Customer ID" placeholder="ID-Number" key="customerId" {...props} />
+		<FormInput label="Comment" placeholder="Add a comment" key="comment" {...props} />
+		<FormInput label="Date Of Reading" placeholder="YYYY-MM-DD" key="dateOfReading" {...props} />
+		<FormInput
+			label="Kind Of Meter"
+			placeholder="HEIZUNG, STROM, UNBEKANNT, WASSER"
+			key="kindOfMeter"
+			{...props}
+		/>
+		<FormInput
+			label="Meter Count"
+			placeholder="Enter count"
+			key="meterCount"
+			type="number"
+			{...props}
+		/>
+		<FormInput label="Meter-ID" placeholder="Meter identifier" key="meterId" {...props} />
+	{/snippet}
 </SimpleTable>

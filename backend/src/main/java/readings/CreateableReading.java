@@ -1,6 +1,7 @@
 package readings;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import modules.IReading;
@@ -83,21 +84,6 @@ public class CreateableReading {
 
     public void setSubstitute(Boolean substitute) {
         this.substitute = substitute;
-    }
-
-    public Integer getSubstituteAsInt() {
-        if (substitute == null) {
-            return 0;
-        }
-        return substitute ? 1 : 0;
-    }
-
-    public void setSubstituteFromInt(Integer substituteInt) {
-        if (substituteInt == null) {
-            this.substitute = false;
-        } else {
-            this.substitute = substituteInt == 1;
-        }
     }
 
     public String printDateOfReading() {

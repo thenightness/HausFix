@@ -11,7 +11,16 @@ export const createSchema = z.object({
 	substitute: z.boolean()
 });
 
-export const editSchema = z.object({});
+export const editSchema = z.object({
+    id: z.string().uuid(),
+    customerId: z.string().uuid(),
+	comment: z.string().optional(),
+	dateOfReading: z.string().date(),
+	kindOfMeter: z.nativeEnum(KindOfMeter),
+	meterCount: z.number(),
+	meterId: z.string(),
+	substitute: z.boolean()
+});
 
 export const deleteSchema = z.object({});
 

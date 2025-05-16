@@ -43,7 +43,7 @@ public class ReadingController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public String handleUpdateReading(Reading reading) {
+    public String handleUpdateReading(CreateableReading reading) {
         return readingService.updateReading(reading);
     }
 
