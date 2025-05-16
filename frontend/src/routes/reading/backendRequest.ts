@@ -9,7 +9,7 @@ export async function getReading() {
     }
 }
 export async function createReading(item: Reading){
-    let result = await post<Reading>('/readings', ResponseType.Json, ContentType.Json, JSON.stringify(item));
+    let result = await post<Reading>('/readings', ResponseType.Json, ContentType.Json, item);
     if(typeof result !== 'object'){
         return result;
     }

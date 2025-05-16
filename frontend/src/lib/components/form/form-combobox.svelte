@@ -8,7 +8,19 @@
 	import { cn } from '$lib/utils.js';
 	import type { WithElementRef } from 'bits-ui';
 	import type { HTMLInputTypeAttribute, HTMLInputAttributes } from 'svelte/elements';
+	import { writable, derived } from 'svelte/store';
 	import type { SuperForm } from 'sveltekit-superforms';
+
+	const {
+		formData,
+		key,
+		label,
+		disabled = false,
+		placeholder = 'Select a customer...',
+		customerDropdownOptions = []
+	} = $props();
+
+	const customers = customerDropdownOptions;
 
 	type InputType = Exclude<HTMLInputTypeAttribute, 'file'>;
 
@@ -17,18 +29,26 @@
 			({ type: 'file'; files?: FileList } | { type?: InputType; files?: undefined })
 	>;
 
-	interface Props {
+	interface ComboboxProps {
+		formData: any;
+		key: string;
+		label: string;
+		disabled?: boolean;
+		customerDropdownOptions?: { value: string; label: string }[];
+	}
+
+	/*interface Props {
 		formData: SuperForm<any>;
 		key: string;
 		label: string;
 		disabled?: boolean;
 		customer: { value: string; label: string }[];
-	}
+	}*/
 
-	let { formData: form, key, label, disabled, ...restProps }: InputProps & Props = $props();
+	//let { formData: form, key, label, disabled, ...restProps }: InputProps & Props = $props();
 
-	const { form: formData } = $derived(form);
-	const customers = [
+	//const { form: formData } = $derived(form);
+	/*const customers = [
 		{
 			value: 'sveltekit',
 			label: 'SvelteKit'
@@ -49,14 +69,21 @@
 			value: 'astro',
 			label: 'Astro'
 		}
-	];
+	];*/
+
 
 	let open = $state(false);
-	let value = $state('');
+	const value = writable<any>(null); // Der ausgewählte Customer
+
+	if (formData?.data?.customerId) {
+		value.set(formData.data.customerId);
+	}
+
+
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
-	const selectedValue = $derived(
-		customers.find((f) => f.value === value)?.label ?? 'Select a customer...'
+	const selectedValue = derived(value, ($value) =>
+			$value ? `${$value.lastName}, ${$value.firstName}` : 'Select a customer...'
 	);
 
 	// We want to refocus the trigger button when the user selects
@@ -80,7 +107,7 @@
 				role="combobox"
 				aria-expanded={open}
 			>
-				{selectedValue || 'Select a customer...'}
+				{$selectedValue}
 				<ChevronsUpDown class="opacity-50" />
 			</Button>
 		{/snippet}
@@ -93,11 +120,16 @@
 				<Command.Group value="customers">
 					{#each customers as customer (customer.value)}
 						<Command.Item
-							value={customer.value}
-							onSelect={() => {
-								value = customer.value;
-								closeAndFocusTrigger();
+								value={customer.value}
+								onSelect={() => {
+								value.set(customer.value); // ✅ nur die UUID setzen
+								if (formData?.data) {
+								  formData.data.customerId = customer.value; // ✅ UUID in Form speichern
+								  console.log('✅ Customer-ID gesetzt:', formData.data.customerId);
+								}
+							closeAndFocusTrigger();
 							}}
+
 						>
 							<Check class={cn(value !== customer.value && 'text-transparent')} />
 							{customer.label}

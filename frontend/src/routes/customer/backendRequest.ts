@@ -18,5 +18,5 @@ export async function updateCustomer(item: Customer){
     return await put<undefined>('/customers', ResponseType.None, ContentType.Json, JSON.stringify(item));
 }
 export async function deleteCustomer(id: string){
-    return await deletee<undefined>(`/customers/${id}`, ResponseType.None, undefined);
+    return await deletee<undefined>(`/customers/${id}`, ResponseType.Json, undefined);
 }

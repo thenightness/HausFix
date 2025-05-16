@@ -38,6 +38,7 @@
 		"zod": "^3.24.4"
 	},
 	"dependencies": {
-		"@tanstack/table-core": "^8.21.3"
+		"@tanstack/table-core": "^8.21.3",
+		"svelte-portal": "^2.2.1"
 	}
 }
