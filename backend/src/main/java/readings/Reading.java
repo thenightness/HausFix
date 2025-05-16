@@ -1,6 +1,7 @@
 package readings;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -115,6 +116,7 @@ public class Reading implements IReading {
         this.substitute = substitute;
     }
 
+    @JsonIgnore
     public Integer getSubstituteAsInt() {
         if (substitute == null) {
             return 0;
@@ -122,6 +124,7 @@ public class Reading implements IReading {
         return substitute ? 1 : 0;
     }
 
+    @JsonIgnore
     public void setSubstituteFromInt(Integer substituteInt) {
         if (substituteInt == null) {
             this.substitute = false;

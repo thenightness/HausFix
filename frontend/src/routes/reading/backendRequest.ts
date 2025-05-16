@@ -24,8 +24,14 @@ export async function getReading(
 			`/readings?customer=${customerInput}&start=${startDateInput}&end=${endDateInput}&kindOfMeter=${kindOfMeterInput}`,
 			ResponseType.Json
 		);
+		
 		if (Array.isArray(result)) {
-			return result;
+			return result.map(item => {
+				return {
+					...item,
+					customerId: item.customer.id
+				}
+			});
 		}
 	}
 }
@@ -56,7 +62,10 @@ export async function updateReading(item: Reading) {
 		'/readings',
 		ResponseType.None,
 		ContentType.Json,
-		JSON.stringify(item)
+		JSON.stringify({
+			...item,
+			customer: undefined
+		})
 	);
 }
 export async function deleteReading(id: string) {

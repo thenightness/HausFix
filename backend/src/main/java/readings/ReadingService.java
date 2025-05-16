@@ -59,7 +59,7 @@ public class ReadingService {
         }
     }
 
-    public String updateReading(Reading reading) {
+    public String updateReading(CreateableReading reading) {
         if (reading.getId() == null) {
             throw new NotFoundException("Reading ID darf nicht null sein");
         }

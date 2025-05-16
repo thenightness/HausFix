@@ -48,13 +48,13 @@ public class ReadingRepository {
     }
 
     // Update - Aktualisiere ein Reading
-    public static void updateReading(Reading reading) throws SQLException {
+    public static void updateReading(CreateableReading reading) throws SQLException {
         String query = "UPDATE readings SET meterCount = ?, dateOfReading = ?, customerId = ?, kindOfMeter = ?, substitute = ?, comment = ?, meterId = ? WHERE id = ?";
 
         int rowsAffected = MySQL.executeStatement(query, List.of(
                 Double.toString(reading.getMeterCount()),
                 reading.getDateOfReading().toString(),
-                reading.getCustomer().getId().toString(),
+                reading.getCustomerId().toString(),
                 reading.getKindOfMeter().toString(),
                 Integer.toString(reading.getSubstitute() ? 1 : 0),
                 reading.getComment() != null ? reading.getComment() : "",
